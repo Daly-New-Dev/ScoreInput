@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+  <meta charset="UTF-8">
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ប្រព័ន្ធបញ្ចូលពិន្ទុសិស្សសម្រាប់គ្រូបន្ទុកថ្នាក់</title>
+  <link href="https://fonts.googleapis.com/css2?family=Khmer+OS+Battambang&family=Khmer+OS+Muol+Light&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Khmer OS Battambang', sans-serif;
+      background: #f4f6f8;
+    }
+    header {
+      text-align: center;
+      padding: 20px;
+      background-color: #007BFF;
+      color: white;
+    }
+    header h1 {
+      font-family: 'Khmer OS Muol Light';
+      font-size: 28px;
+      margin: 0;
+    }
+    header h2 {
+      font-size: 20px;
+      margin: 5px 0 0 0;
+    }
+    .container {
+      display: flex;
+      padding: 20px;
+      gap: 20px;
+    }
+    .form-panel {
+      width: 35%;
+      background: #fff;
+      padding: 20px;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 20px;
+      align-self: flex-start;
+      border-radius: 5px;
+      font-family: 'Khmer OS Battambang', sans-serif; /* Ensure font for the entire panel */
+    }
+    .table-panel {
+      width: 65%;
+      background: #fff;
+      padding: 20px;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+      border-radius: 5px;
+      overflow-x: auto;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
+      font-family: 'Khmer OS Battambang', sans-serif; /* Ensure label font */
+    }
+    select, input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      height: 40px;
+      font-family: 'Khmer OS Battambang', sans-serif; /* Ensure input font */
+    }
+    .row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end; /* Align items to the bottom */
+    }
+    .row > div {
+      flex: 1;
+    }
+    button {
+      background-color: #007BFF;
+      border: none;
+      color: white;
+      padding: 8px; /* Adjusted padding */
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: 'Khmer OS Battambang', sans-serif; /* Ensure button font */
+      width: 100%;
+      margin-top: 15px;
+      height: 40px; /* Set height to match inputs */
+      box-sizing: border-box; /* Add box-sizing */
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .export-section {
+      margin-top: 20px;
+      border-top: 1px solid #ccc;
+      padding-top: 15px;
+    }
+    .export-section .row button {
+        margin-top: 0; /* Remove top margin for button in this section */
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'Khmer OS Battambang';
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px 5px;
+      text-align: center;
+      font-size: 15px;
+    }
+    th {
+      background: #007BFF;
+      color: white;
+      position: sticky;
+      top: -1px;
+    }
+    #message {
+      margin-top: 10px;
+      font-weight: bold;
+      color: green;
+    }
+
+    /* --- Mobile Responsive Styles --- */
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+        padding: 10px;
+        gap: 15px;
+      }
+      .form-panel, .table-panel {
+        width: 100%;
+        box-sizing: border-box;
+        position: static;
+      }
+      .row {
+        flex-direction: column;
+        gap: 0;
+        align-items: stretch;
+      }
+      .row > div {
+        margin-bottom: 10px;
+      }
+       .export-section .row {
+        flex-direction: row; /* Keep export section side-by-side on mobile if possible */
+      }
+      header h1 {
+        font-size: 22px;
+      }
+      header h2 {
+        font-size: 16px;
+      }
+      th, td {
+        font-size: 14px;
+        padding: 8px 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>វិទ្យាល័យ ហ៊ុន សែន ក្រាំងស្រម៉</h1>
+    <h2>ប្រព័ន្ធបញ្ចូលពិន្ទុសិស្សសម្រាប់គ្រូបន្ទុកថ្នាក់</h2>
+  </header>
+
+  <div class="container">
+    <div class="form-panel">
+      <div class="row">
+        <div>
+          <label>ជ្រើសរើសថ្នាក់:</label>
+          <select id="classSelect">
+            <option value="">ជ្រើសរើសថ្នាក់</option>
+          </select>
+        </div>
+        <div>
+          <label>ជ្រើសរើសមុខវិជ្ជា:</label>
+          <select id="subjectSelect">
+            <option value="">ជ្រើសរើសមុខវិជ្ជា</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>ខែ:</label>
+          <input type="text" id="monthInput" placeholder="ឧ. មករា">
+        </div>
+        <div>
+          <label>ឈ្មោះគ្រូ:</label>
+          <input type="text" id="teacherInput" placeholder="ឧ. ទឿន ដាលី">
+        </div>
+      </div>
+
+      <button id="submitBtn">បញ្ចូលពិន្ទុ</button>
+      <div id="message"></div>
+
+      <div class="export-section">
+        <label>ជ្រើសរើសថ្នាក់ទាញយក Excel:</label>
+        <div class="row">
+          <div>
+            <select id="exportClassSelect">
+              <option value="">ជ្រើសរើសថ្នាក់</option>
+            </select>
+          </div>
+          <div>
+            <button id="exportBtn">ទាញយក Excel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-panel">
+      <table>
+        <thead>
+          <tr>
+            <th>ល.រ</th>
+            <th>ឈ្មោះសិស្ស</th>
+            <th>ភេទ</th>
+            <th>ថ្នាក់</th>
+            <th>ពិន្ទុ</th>
+          </tr>
+        </thead>
+        <tbody id="studentTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    let students = [];
+
+    function loadDropdowns() {
+      google.script.run.withSuccessHandler(classes => {
+        const classSelect = document.getElementById("classSelect");
+        const exportClassSelect = document.getElementById("exportClassSelect");
+        classSelect.innerHTML = '<option value="">ជ្រើសរើសថ្នាក់</option>';
+        exportClassSelect.innerHTML = '<option value="">ជ្រើសរើសថ្នាក់</option>';
+        classes.forEach(cls => {
+          classSelect.innerHTML += `<option value="${cls}">${cls}</option>`;
+          exportClassSelect.innerHTML += `<option value="${cls}">${cls}</option>`;
+        });
+      }).getClassList();
+
+      google.script.run.withSuccessHandler(subjects => {
+        const subjectSelect = document.getElementById("subjectSelect");
+        subjectSelect.innerHTML = '<option value="">ជ្រើសរើសមុខវិជ្ជា</option>';
+        subjects.forEach(sub => {
+          subjectSelect.innerHTML += `<option value="${sub}">${sub}</option>`;
+        });
+      }).getSubjectList();
+    }
+
+    function loadStudents() {
+      const selectedClass = document.getElementById("classSelect").value;
+      if (!selectedClass) {
+        document.getElementById("studentTableBody").innerHTML = "";
+        return;
+      }
+      google.script.run.withSuccessHandler(data => {
+        students = data;
+        renderTable();
+      }).getStudentsByClass(selectedClass);
+    }
+
+    function renderTable() {
+      const subject = document.getElementById("subjectSelect").value;
+      let html = "";
+      students.forEach((student, index) => {
+        html += `
+          <tr>
+            <td>${index + 1}</td>
+            <td style="text-align: left; padding-left: 10px;">${student.name}</td>
+            <td>${student.gender}</td>
+            <td>${student.class}</td>
+            <td><input type="number" class="score-input" data-row="${student.rowIndex}" style="width:60px;" onkeydown="handleKey(event)"></td>
+          </tr>`;
+      });
+      document.getElementById("studentTableBody").innerHTML = html;
+    }
+
+    function handleKey(e) {
+      if (e.key === "Enter" || e.key === "Tab") {
+        e.preventDefault();
+        const inputs = [...document.querySelectorAll(".score-input")];
+        const idx = inputs.indexOf(e.target);
+        if (idx >= 0 && idx < inputs.length - 1) {
+          inputs[idx + 1].focus();
+        }
+      }
+    }
+
+    function submitScores() {
+      const teacher = document.getElementById("teacherInput").value.trim();
+      const month = document.getElementById("monthInput").value.trim();
+      const subject = document.getElementById("subjectSelect").value;
+      const classVal = document.getElementById("classSelect").value;
+      if (!teacher || !month || !subject || !classVal) {
+        alert("សូមបំពេញព័ត៌មានទាំងអស់");
+        return;
+      }
+
+      const scores = [];
+      document.querySelectorAll(".score-input").forEach(input => {
+        const rowIndex = parseInt(input.dataset.row);
+        const score = input.value.trim();
+        if (score !== "") {
+          scores.push({ rowIndex, score });
+        }
+      });
+
+      google.script.run.withSuccessHandler(msg => {
+        document.getElementById("message").innerText = msg;
+        setTimeout(()=> document.getElementById("message").innerText = "", 3000);
+        loadStudents();
+      }).submitScores({ teacher, month, subject, scores });
+    }
+
+    function exportExcel() {
+      const exportClass = document.getElementById("exportClassSelect").value;
+      if (!exportClass) {
+        alert("សូមជ្រើសរើសថ្នាក់");
+        return;
+      }
+
+      google.script.run.withSuccessHandler(result => {
+        const link = document.createElement("a");
+        link.href = result.downloadUrl;
+        link.target = "_blank";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }).exportClassToExcel(exportClass);
+    }
+
+    document.getElementById("classSelect").addEventListener("change", loadStudents);
+    document.getElementById("subjectSelect").addEventListener("change", loadStudents);
+    document.getElementById("submitBtn").addEventListener("click", submitScores);
+    document.getElementById("exportBtn").addEventListener("click", exportExcel);
+    window.onload = loadDropdowns;
+  </script>
+</body>
+</html>
