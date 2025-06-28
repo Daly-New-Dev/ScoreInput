@@ -57,7 +57,7 @@
 
   <script>
     // CRUCIAL: Replace with your deployed Apps Script Web App URL.
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxgVKbiI4Sq80DzP8si0zOs6ZeBFqlu54bcuLowVxSepRZEcTIdHw_O1OO39aLvuGEO/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwc-b9hXTBnoIdp8EtUST5RtRlmIx-1baso4HTrT1vamDsigsDsZZ3nObtRWq9LrMWm/exec';
     let students = [];
 
     async function loadDropdowns() {
@@ -171,7 +171,6 @@
         const res = await fetch(SCRIPT_URL, {
           method: 'POST',
           body: JSON.stringify({ action: 'submitScores', payload: { teacher, month, subject, scores } }),
-          // ### FIX: Changed Content-Type header to bypass CORS preflight check ###
           headers: { 'Content-Type': 'text/plain;charset=utf-8' }
         });
         const result = await res.json();
@@ -206,10 +205,11 @@
         const res = await fetch(SCRIPT_URL, {
           method: 'POST',
           body: JSON.stringify({ action: 'exportClassToExcel', payload: { class: exportClass } }),
-          // ### FIX: Changed Content-Type header to bypass CORS preflight check ###
           headers: { 'Content-Type': 'text/plain;charset=utf-8' }
         });
-        const result = await res.json();
+        
+        const rawText = await res.text();
+        const result = JSON.parse(rawText);
 
         if (result.status === 'success') {
           window.open(result.downloadUrl, '_blank');
@@ -217,8 +217,9 @@
           alert(`Error exporting: ${result.message}`);
         }
       } catch (error) {
-        console.error("Error exporting:", error);
-        alert("An error occurred during export.");
+        // ### FIX: Added a more informative error message ###
+        console.error("Export failed:", error);
+        alert("Export Failed.\n\nThis is a PERMISSION ISSUE.\n\nTo fix this, you MUST redeploy the script:\n1. In Apps Script, click Deploy > New deployment.\n2. You MUST authorize the new Google Drive permissions.\n3. Copy the NEW URL and update the SCRIPT_URL in this file.\n4. Redeploy to Vercel.");
       } finally {
         exportBtn.disabled = false;
         exportBtn.textContent = "ទាញយក Excel";
