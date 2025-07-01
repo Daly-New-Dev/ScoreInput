@@ -97,7 +97,7 @@
         tableBody.innerHTML = "";
         return;
       }
-      tableBody.innerHTML = '<tr><td colspan="5">Loading students...</td></tr>';
+      tableBody.innerHTML = '<tr><td colspan="5">កំពុងទាញយកទិន្នន័យសិស្ស...</td></tr>';
       try {
         const res = await fetch(`${SCRIPT_URL}?action=getStudentsByClass&class=${selectedClass}`);
         students = await res.json();
