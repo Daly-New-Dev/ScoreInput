@@ -1,9 +1,7 @@
-const CACHE_NAME = 'student-scores-cache-v2'; // Updated cache name
+const CACHE_NAME = 'student-scores-cache-v3'; // Updated cache name to force update
 const urlsToCache = [
   '/',
   '/index.html'
-  // The Google Fonts URL has been removed to prevent the CORS error.
-  // The browser will still load the font directly.
 ];
 
 // Install the service worker and cache the static assets
@@ -17,43 +15,36 @@ self.addEventListener('install', event => {
   );
 });
 
-// Serve cached content when offline
+// ### FIX: Implemented a "Network Falling Back to Cache" strategy ###
+// This is more robust and prevents errors on refresh for online users.
 self.addEventListener('fetch', event => {
-  // We only want to cache GET requests for our own assets, not API calls.
-  if (event.request.method !== 'GET' || event.request.url.startsWith('https://script.google.com')) {
+  // Strategy 1: For API calls to Google Scripts, we must always go to the network.
+  if (event.request.url.startsWith('https://script.google.com')) {
     event.respondWith(fetch(event.request));
     return;
   }
 
+  // Strategy 2: For our app assets (like index.html), try the network first.
+  // This ensures online users get the latest version.
+  // If the network fails (because the user is offline), serve from the cache.
   event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // Cache hit - return response
-        if (response) {
-          return response;
-        }
-        // Not in cache - fetch from network, then cache it
-        return fetch(event.request).then(
-          networkResponse => {
-            // Check if we received a valid response
-            if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-              return networkResponse;
-            }
-
-            const responseToCache = networkResponse.clone();
-            caches.open(CACHE_NAME)
-              .then(cache => {
-                cache.put(event.request, responseToCache);
-              });
-            
-            return networkResponse;
-          }
-        ).catch(() => {
-          // If the network fails and it's not in the cache, you can return an offline page here if you have one.
-        });
+    fetch(event.request)
+      .then(networkResponse => {
+        // If the fetch is successful, cache the new version for offline use.
+        const responseToCache = networkResponse.clone();
+        caches.open(CACHE_NAME)
+          .then(cache => {
+            cache.put(event.request, responseToCache);
+          });
+        return networkResponse;
+      })
+      .catch(() => {
+        // If the network request fails, serve the asset from the cache instead.
+        return caches.match(event.request);
       })
   );
 });
+
 
 // Clean up old caches
 self.addEventListener('activate', event => {
