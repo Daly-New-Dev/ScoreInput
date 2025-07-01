@@ -1,4 +1,4 @@
-const CACHE_NAME = 'student-scores-cache-v3'; // Updated cache name to force update
+const CACHE_NAME = 'student-scores-cache-v4'; // Updated cache name to force update
 const urlsToCache = [
   '/',
   '/index.html'
@@ -15,8 +15,8 @@ self.addEventListener('install', event => {
   );
 });
 
-// ### FIX: Implemented a "Network Falling Back to Cache" strategy ###
-// This is more robust and prevents errors on refresh for online users.
+// ### FIX: Implemented a "Cache, then Network" strategy ###
+// This is a more robust pattern to prevent refresh errors.
 self.addEventListener('fetch', event => {
   // Strategy 1: For API calls to Google Scripts, we must always go to the network.
   if (event.request.url.startsWith('https://script.google.com')) {
@@ -24,24 +24,28 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Strategy 2: For our app assets (like index.html), try the network first.
-  // This ensures online users get the latest version.
-  // If the network fails (because the user is offline), serve from the cache.
+  // Strategy 2: For our app assets (like index.html), serve from cache first for a fast load,
+  // then update the cache in the background from the network.
   event.respondWith(
-    fetch(event.request)
-      .then(networkResponse => {
-        // If the fetch is successful, cache the new version for offline use.
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME)
-          .then(cache => {
-            cache.put(event.request, responseToCache);
-          });
-        return networkResponse;
-      })
-      .catch(() => {
-        // If the network request fails, serve the asset from the cache instead.
-        return caches.match(event.request);
-      })
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.match(event.request).then(response => {
+        // Fetch a fresh version from the network in the background to update the cache.
+        const fetchPromise = fetch(event.request).then(networkResponse => {
+          // If we get a valid response, update the cache.
+          if (networkResponse && networkResponse.status === 200) {
+            cache.put(event.request, networkResponse.clone());
+          }
+          return networkResponse;
+        }).catch(err => {
+          // The network request failed, which is okay if we're offline.
+          console.log('Network request failed, serving from cache if available.', err);
+        });
+
+        // Return the cached version immediately if it exists,
+        // otherwise, wait for the network to respond.
+        return response || fetchPromise;
+      });
+    })
   );
 });
 
