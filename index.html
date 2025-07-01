@@ -20,11 +20,11 @@
       <div class="row">
         <div>
           <label>ជ្រើសរើសថ្នាក់:</label>
-          <select id="classSelect"><option value="">Loading...</option></select>
+          <select id="classSelect"><option value="">កំពុងទាញទិន្នន័យ...</option></select>
         </div>
         <div>
           <label>ជ្រើសរើសមុខវិជ្ជា:</label>
-          <select id="subjectSelect"><option value="">Loading...</option></select>
+          <select id="subjectSelect"><option value="">កំពុងទាញទិន្នន័យ...</option></select>
         </div>
       </div>
 
@@ -39,7 +39,7 @@
       <div class="export-section">
         <label>ជ្រើសរើសថ្នាក់ទាញយក Excel:</label>
         <div class="row">
-          <div><select id="exportClassSelect"><option value="">Loading...</option></select></div>
+          <div><select id="exportClassSelect"><option value="">កំពុងទាញទិន្នន័យ...</option></select></div>
           <div><button id="exportBtn">ទាញយក Excel</button></div>
         </div>
       </div>
@@ -165,7 +165,7 @@
 
       const submitBtn = document.getElementById("submitBtn");
       submitBtn.disabled = true;
-      submitBtn.textContent = "Saving...";
+      submitBtn.textContent = "កំពុងរក្សាទុក...";
 
       try {
         const res = await fetch(SCRIPT_URL, {
