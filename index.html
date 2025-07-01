@@ -23,32 +23,43 @@
 
   <div class="container">
     <div class="form-panel">
-      <div class="row">
-        <div>
-          <label>ជ្រើសរើសថ្នាក់:</label>
-          <select id="classSelect"><option value="">កំពុងទាញយកទិន្នន័យ...</option></select>
-        </div>
-        <div>
-          <label>ជ្រើសរើសមុខវិជ្ជា:</label>
-          <select id="subjectSelect"><option value="">កំពុងទាញយកទិន្នន័យ...</option></select>
-        </div>
-      </div>
-
-      <div class="row">
-        <div><label>ខែ:</label><input type="text" id="monthInput" placeholder="ឧ. មករា"></div>
-        <div><label>ឈ្មោះគ្រូ:</label><input type="text" id="teacherInput" placeholder="ឧ. ទឿន ដាលី"></div>
-      </div>
-
-      <button id="submitBtn">បញ្ចូលពិន្ទុ</button>
-      <div id="message"></div>
-
-      <div class="export-section">
-        <label>ជ្រើសរើសថ្នាក់ទាញយក Excel:</label>
+      <!-- ### FIX: Main form content is now in a container to be hidden on error ### -->
+      <div id="main-form-content">
         <div class="row">
-          <div><select id="exportClassSelect"><option value="">កំពុងទាញយកទិន្នន័យ...</option></select></div>
-          <div><button id="exportBtn">ទាញយក Excel</button></div>
+          <div>
+            <label>ជ្រើសរើសថ្នាក់:</label>
+            <select id="classSelect"><option value="">កំពុងទាញយកទិន្នន័យ...</option></select>
+          </div>
+          <div>
+            <label>ជ្រើសរើសមុខវិជ្ជា:</label>
+            <select id="subjectSelect"><option value="">កំពុងទាញយកទិន្នន័យ...</option></select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div><label>ខែ:</label><input type="text" id="monthInput" placeholder="ឧ. មករា"></div>
+          <div><label>ឈ្មោះគ្រូ:</label><input type="text" id="teacherInput" placeholder="ឧ. ទឿន ដាលី"></div>
+        </div>
+
+        <button id="submitBtn">បញ្ចូលពិន្ទុ</button>
+        <div id="message"></div>
+
+        <div class="export-section">
+          <label>ជ្រើសរើសថ្នាក់ទាញយក Excel:</label>
+          <div class="row">
+            <div><select id="exportClassSelect"><option value="">កំពុងទាញយកទិន្នន័យ...</option></select></div>
+            <div><button id="exportBtn">ទាញយក Excel</button></div>
+          </div>
         </div>
       </div>
+      
+      <!-- ### FIX: New error panel with a retry button ### -->
+      <div id="error-panel" style="display: none; text-align: center; padding: 20px; background-color: #ffebee; border: 1px solid #f44336; border-radius: 5px;">
+        <p style="color: #d32f2f; font-weight: bold; font-size: 18px;">ទាញយកទិន្នន័យមិនสำเร็จ</p>
+        <p style="color: #555; margin: 10px 0 15px 0;">សូមពិនិត្យការតភ្ជាប់អ៊ីនធឺណិតរបស់អ្នក រួចព្យាយាមម្តងទៀត។</p>
+        <button id="retryBtn" style="background-color: #007BFF; color: white; width: auto; padding: 10px 20px; margin-top: 0;">ព្យាយាមម្តងទៀត</button>
+      </div>
+
     </div>
 
     <div class="table-panel">
@@ -66,13 +77,28 @@
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz1rsOWZW3dSxKKrZbqYaLk4QgA3euTvKSK7xcdFoRsUchy_DFSwE2Ai0ChW3JkEmo64g/exec';
     let students = [];
 
+    const mainFormContent = document.getElementById('main-form-content');
+    const errorPanel = document.getElementById('error-panel');
+    const retryBtn = document.getElementById('retryBtn');
+
     async function loadDropdowns() {
+      // Show loading state and hide any previous errors
+      mainFormContent.style.display = 'block';
+      errorPanel.style.display = 'none';
+      document.getElementById('classSelect').innerHTML = '<option value="">កំពុងទាញយកទិន្នន័យ...</option>';
+      document.getElementById('subjectSelect').innerHTML = '<option value="">កំពុងទាញយកទិន្នន័យ...</option>';
+      document.getElementById('exportClassSelect').innerHTML = '<option value="">កំពុងទាញយកទិន្នន័យ...</option>';
+
       try {
         const [classesRes, subjectsRes] = await Promise.all([
           fetch(`${SCRIPT_URL}?action=getClassList`),
           fetch(`${SCRIPT_URL}?action=getSubjectList`)
         ]);
         
+        if (!classesRes.ok || !subjectsRes.ok) {
+          throw new Error('Network response was not OK');
+        }
+
         const classes = await classesRes.json();
         const subjects = await subjectsRes.json();
 
@@ -92,7 +118,9 @@
         });
       } catch (error) {
         console.error("Error loading dropdowns:", error);
-        alert("ចុច OK និងសូមរង់ចាំប្រព័ន្ធទាញយកទិន្នន័យ");
+        // ### FIX: Show the error panel instead of an alert ###
+        mainFormContent.style.display = 'none';
+        errorPanel.style.display = 'block';
       }
     }
 
@@ -220,6 +248,7 @@
     document.getElementById("classSelect").addEventListener("change", loadStudents);
     document.getElementById("submitBtn").addEventListener("click", submitScores);
     document.getElementById("exportBtn").addEventListener("click", exportExcel);
+    retryBtn.addEventListener('click', loadDropdowns); // Add listener for the new button
     window.onload = loadDropdowns;
 
     // Register the Service Worker
