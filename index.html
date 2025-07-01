@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#007BFF"/>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+
   <title>ប្រព័ន្ធបញ្ចូលពិន្ទុសិស្សសម្រាប់គ្រូបន្ទុកថ្នាក់</title>
   <link href="https://fonts.googleapis.com/css2?family=Khmer+OS+Battambang&family=Khmer+OS+Muol+Light&display=swap" rel="stylesheet">
   <style>
@@ -20,11 +26,11 @@
       <div class="row">
         <div>
           <label>ជ្រើសរើសថ្នាក់:</label>
-          <select id="classSelect"><option value="">កំពុងទាញទិន្នន័យ...</option></select>
+          <select id="classSelect"><option value="">Loading...</option></select>
         </div>
         <div>
           <label>ជ្រើសរើសមុខវិជ្ជា:</label>
-          <select id="subjectSelect"><option value="">កំពុងទាញទិន្នន័យ...</option></select>
+          <select id="subjectSelect"><option value="">Loading...</option></select>
         </div>
       </div>
 
@@ -39,7 +45,7 @@
       <div class="export-section">
         <label>ជ្រើសរើសថ្នាក់ទាញយក Excel:</label>
         <div class="row">
-          <div><select id="exportClassSelect"><option value="">កំពុងទាញទិន្នន័យ...</option></select></div>
+          <div><select id="exportClassSelect"><option value="">Loading...</option></select></div>
           <div><button id="exportBtn">ទាញយក Excel</button></div>
         </div>
       </div>
@@ -57,7 +63,7 @@
 
   <script>
     // CRUCIAL: Make sure this is your latest Apps Script URL
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxM8c9YFGsOeivarC_BNwbIBTFcpEVSkL60mDmhHrq3R-Kq61Ds0ZzN-yYlBgDuRM4bew/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyz0_TwZZsYjVrcVxfmxgIrYg6-w9VGfpTgrMhAIWSdIGrICUUlWCN94hTz3Ee3d4N8Hg/exec';
     let students = [];
 
     async function loadDropdowns() {
@@ -97,7 +103,7 @@
         tableBody.innerHTML = "";
         return;
       }
-      tableBody.innerHTML = '<tr><td colspan="5">កំពុងទាញយកទិន្នន័យសិស្ស...</td></tr>';
+      tableBody.innerHTML = '<tr><td colspan="5">Loading students...</td></tr>';
       try {
         const res = await fetch(`${SCRIPT_URL}?action=getStudentsByClass&class=${selectedClass}`);
         students = await res.json();
@@ -165,7 +171,7 @@
 
       const submitBtn = document.getElementById("submitBtn");
       submitBtn.disabled = true;
-      submitBtn.textContent = "កំពុងរក្សាទុក...";
+      submitBtn.textContent = "Saving...";
 
       try {
         const res = await fetch(SCRIPT_URL, {
@@ -201,23 +207,31 @@
       exportBtn.disabled = true;
       exportBtn.textContent = "Exporting...";
 
-      // ### FINAL FIX: Use a direct GET request to trigger the download ###
       const exportUrl = `${SCRIPT_URL}?action=exportClassToExcel&class=${encodeURIComponent(exportClass)}`;
       
-      // Open the URL in a new tab. The Apps Script will handle the redirect to the download.
       window.open(exportUrl, '_blank');
       
-      // Reset the button after a short delay
       setTimeout(() => {
         exportBtn.disabled = false;
         exportBtn.textContent = "ទាញយក Excel";
-      }, 3000); // 3 seconds
+      }, 3000);
     }
 
     document.getElementById("classSelect").addEventListener("change", loadStudents);
     document.getElementById("submitBtn").addEventListener("click", submitScores);
     document.getElementById("exportBtn").addEventListener("click", exportExcel);
     window.onload = loadDropdowns;
+
+    // Register the Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js').then(registration => {
+          console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        }, err => {
+          console.log('ServiceWorker registration failed: ', err);
+        });
+      });
+    }
   </script>
 </body>
 </html>
