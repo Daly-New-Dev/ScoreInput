@@ -73,8 +73,8 @@
   </div>
 
   <script>
-    // ### CRUCIAL: Replace this with the NEW URL from your latest deployment ###
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz6ypXMv25G9oz8zxIDpr9c0x9G6LHGG0NVHnytcIr63EfA5bkJiC8yRkl8Cd0SP-GlDA/exec';
+    // ### FIX: Updated with the Web App URL you provided ###
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzmLiz076vLjp5Hf--toh3n23D8zc84N5EygKS7NQ3a7rpGQ1VcuKallQIcMl5vIeBh8w/exec';
     let students = [];
 
     const mainFormContent = document.getElementById('main-form-content');
@@ -82,7 +82,6 @@
     const retryBtn = document.getElementById('retryBtn');
 
     async function loadDropdowns() {
-      // Show loading state and hide any previous errors
       mainFormContent.style.display = 'block';
       errorPanel.style.display = 'none';
       document.getElementById('classSelect').innerHTML = '<option value="">កំពុងទាញយកទិន្នន័យ...</option>';
@@ -96,11 +95,35 @@
         ]);
         
         if (!classesRes.ok || !subjectsRes.ok) {
+          console.error("Network response for classes was not OK:", classesRes.statusText);
+          console.error("Network response for subjects was not OK:", subjectsRes.statusText);
           throw new Error('Network response was not OK');
         }
 
-        const classes = await classesRes.json();
-        const subjects = await subjectsRes.json();
+        // ### FIX: Read response as text first for better debugging ###
+        const classesText = await classesRes.text();
+        const subjectsText = await subjectsRes.text();
+        
+        let classes, subjects;
+
+        // Try to parse the text as JSON. If it fails, we know the server sent bad data.
+        try {
+          classes = JSON.parse(classesText);
+          subjects = JSON.parse(subjectsText);
+        } catch (e) {
+          console.error("Failed to parse JSON response from script.");
+          console.log("Raw classes response from server:", classesText);
+          console.log("Raw subjects response from server:", subjectsText);
+          throw new Error("Invalid JSON from server. Check console for raw response.");
+        }
+
+        // This checks if the successfully parsed data is in the correct format (an array).
+        if (!Array.isArray(classes) || !Array.isArray(subjects)) {
+          console.error("Data received from script is not an array.");
+          console.log("Received Classes Data:", classes);
+          console.log("Received Subjects Data:", subjects);
+          throw new Error("Invalid data format received from the server.");
+        }
 
         const classSelect = document.getElementById("classSelect");
         const exportClassSelect = document.getElementById("exportClassSelect");
@@ -118,7 +141,6 @@
         });
       } catch (error) {
         console.error("Error loading dropdowns:", error);
-        // Show the error panel instead of an alert
         mainFormContent.style.display = 'none';
         errorPanel.style.display = 'block';
       }
