@@ -63,7 +63,7 @@
 
   <script>
     // CRUCIAL: Make sure this is your latest Apps Script URL
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytCFG8K7byfqJNFtGIFOzkaBC97dJi22l4Epft0T1m0TxlArytbbCgp24c-bpK9wWoKQ/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyhZWQ3wB2PZp_aWA6j8qCXLwpLhhfNzJiDyHqIaCEOrY_25XaWLKQFBHhQ5GEvdiQR/exec';
     let students = [];
 
     async function loadDropdowns() {
@@ -92,7 +92,7 @@
         });
       } catch (error) {
         console.error("Error loading dropdowns:", error);
-        alert("Failed to load initial data. Please check the console and ensure the Script URL is correct.");
+        alert("ចុច OK និងសូមរង់ចាំប្រព័ន្ធទាញយកទិន្នន័យ");
       }
     }
 
@@ -110,7 +110,7 @@
         renderTable();
       } catch (error) {
         console.error("Error loading students:", error);
-        tableBody.innerHTML = '<tr><td colspan="5" style="color:red;">ទាញយកទិន្នន័យសិស្សមិនត្រឹមត្រូវ</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="5" style="color:red;">ទាញយកទិន្នន័យសិស្សមិនត្រឹមត្រូវ។</td></tr>';
       }
     }
 
@@ -118,7 +118,7 @@
       const tableBody = document.getElementById("studentTableBody");
       let html = "";
       if (students.length === 0) {
-        html = '<tr><td colspan="5">No students found for this class.</td></tr>';
+        html = '<tr><td colspan="5">មិនមានទិន្នន័យសិស្សក្នុងថ្នាក់នេះទេ។</td></tr>';
       } else {
         students.forEach((student, index) => {
           html += `
@@ -165,7 +165,7 @@
       });
       
       if(scores.length === 0) {
-        alert("Please enter at least one score.");
+        alert("សូមបញ្ចូលពិន្ទុយ៉ាងតិចមួយ។");
         return;
       }
 
@@ -189,7 +189,7 @@
 
       } catch (error) {
         console.error("Error submitting scores:", error);
-        alert("An error occurred while saving scores.");
+        alert("មានបញ្ហាក្នុងការរក្សាទុកពិន្ទុ។");
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = "បញ្ចូលពិន្ទុ";
@@ -205,7 +205,7 @@
       
       const exportBtn = document.getElementById("exportBtn");
       exportBtn.disabled = true;
-      exportBtn.textContent = "Exporting...";
+      exportBtn.textContent = "កំពុងទាញយក...";
 
       const exportUrl = `${SCRIPT_URL}?action=exportClassToExcel&class=${encodeURIComponent(exportClass)}`;
       
