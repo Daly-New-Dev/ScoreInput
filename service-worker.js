@@ -1,12 +1,9 @@
-const CACHE_NAME = 'student-scores-cache-v1';
-// Add any other files you want to cache here.
-// Note: The Apps Script URL cannot be cached as it's a dynamic API endpoint.
+const CACHE_NAME = 'student-scores-cache-v2'; // Updated cache name
 const urlsToCache = [
   '/',
-  '/index.html',
-  // You can add your main CSS file here if you have one
-  // '/style.css', 
-  'https://fonts.googleapis.com/css2?family=Khmer+OS+Battambang&family=Khmer+OS+Muol+Light&display=swap'
+  '/index.html'
+  // The Google Fonts URL has been removed to prevent the CORS error.
+  // The browser will still load the font directly.
 ];
 
 // Install the service worker and cache the static assets
@@ -51,7 +48,9 @@ self.addEventListener('fetch', event => {
             
             return networkResponse;
           }
-        );
+        ).catch(() => {
+          // If the network fails and it's not in the cache, you can return an offline page here if you have one.
+        });
       })
   );
 });
@@ -64,6 +63,7 @@ self.addEventListener('activate', event => {
       return Promise.all(
         cacheNames.map(cacheName => {
           if (cacheWhitelist.indexOf(cacheName) === -1) {
+            console.log('Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
