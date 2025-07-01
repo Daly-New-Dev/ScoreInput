@@ -56,8 +56,8 @@
   </div>
 
   <script>
-    // CRUCIAL: Replace with your deployed Apps Script Web App URL.
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwc-b9hXTBnoIdp8EtUST5RtRlmIx-1baso4HTrT1vamDsigsDsZZ3nObtRWq9LrMWm/exec';
+    // CRUCIAL: Make sure this is your latest Apps Script URL
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwdt8E_p7uQ-46aJtvZLXwu-FAI1ETiuXRtg2MED7FTheAWVX0YLgw2akRSU0zMxu-t/exec';
     let students = [];
 
     async function loadDropdowns() {
@@ -208,18 +208,22 @@
           headers: { 'Content-Type': 'text/plain;charset=utf-8' }
         });
         
-        const rawText = await res.text();
-        const result = JSON.parse(rawText);
+        const result = await res.json();
 
         if (result.status === 'success') {
-          window.open(result.downloadUrl, '_blank');
+          // ### FINAL FIX: Use the invisible link method to trigger download ###
+          const link = document.createElement('a');
+          link.href = result.downloadUrl;
+          link.download = `Export_${exportClass}.xlsx`; // Suggests a filename to the browser
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
         } else {
           alert(`Error exporting: ${result.message}`);
         }
       } catch (error) {
-        // ### FIX: Added a more informative error message ###
         console.error("Export failed:", error);
-        alert("Export Failed.\n\nThis is a PERMISSION ISSUE.\n\nTo fix this, you MUST redeploy the script:\n1. In Apps Script, click Deploy > New deployment.\n2. You MUST authorize the new Google Drive permissions.\n3. Copy the NEW URL and update the SCRIPT_URL in this file.\n4. Redeploy to Vercel.");
+        alert("An error occurred during export.");
       } finally {
         exportBtn.disabled = false;
         exportBtn.textContent = "ទាញយក Excel";
