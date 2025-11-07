@@ -37,7 +37,11 @@
         </div>
 
         <div class="row">
-          <div><label>ខែ:</label><input type="text" id="monthInput" placeholder="ឧ. មករា"></div>
+          <!-- MODIFIED: Replaced month input with period select -->
+          <div>
+            <label>ជ្រើសរើសវគ្គ:</label>
+            <select id="periodSelect"><option value="">កំពុងទាញយកទិន្នន័យ...</option></select>
+          </div>
           <div><label>ឈ្មោះគ្រូ:</label><input type="text" id="teacherInput" placeholder="ឧ. ទឿន ដាលី"></div>
         </div>
 
@@ -45,11 +49,19 @@
         <div id="message"></div>
 
         <div class="export-section">
-          <label>ជ្រើសរើសថ្នាក់ទាញយក Excel:</label>
+          <label>ទាញយកពិន្ទុជា Excel:</label>
+          <!-- MODIFIED: Added period select for export -->
           <div class="row">
-            <div><select id="exportClassSelect"><option value="">កំពុងទាញយកទិន្នន័យ...</option></select></div>
-            <div><button id="exportBtn">ទាញយក Excel</button></div>
+            <div>
+              <label>ថ្នាក់:</label>
+              <select id="exportClassSelect"><option value="">កំពុងទាញយកទិន្នន័យ...</option></select>
+            </div>
+            <div>
+              <label>វគ្គ:</label>
+              <select id="exportPeriodSelect"><option value="">កំពុងទាញយកទិន្នន័យ...</option></select>
+            </div>
           </div>
+          <button id="exportBtn" style="width:100%; margin-top: 10px;">ទាញយក Excel</button>
         </div>
       </div>
       
@@ -73,72 +85,104 @@
   </div>
 
   <script>
-    // ### FIX: Updated with the Web App URL you provided ###
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzmLiz076vLjp5Hf--toh3n23D8zc84N5EygKS7NQ3a7rpGQ1VcuKallQIcMl5vIeBh8w/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwy2bZFDRWYNqnzO25ihcnB4eQYJOCLpSmXY4ln4CS74-lQzd3lqkfdjb4vdfdkVCjpFw/exec';
     let students = [];
 
     const mainFormContent = document.getElementById('main-form-content');
     const errorPanel = document.getElementById('error-panel');
     const retryBtn = document.getElementById('retryBtn');
 
+    // Helper function to show a temporary message
+    function showMessage(text, isSuccess) {
+      const messageDiv = document.getElementById("message");
+      messageDiv.innerText = text;
+      messageDiv.style.color = isSuccess ? 'green' : 'red';
+      setTimeout(() => messageDiv.innerText = "", 5000);
+    }
+
+    // Helper function to handle fetch errors and JSON parsing
+    async function fetchJson(url, options) {
+      let response;
+      try {
+        response = await fetch(url, options);
+      } catch (networkError) {
+        console.error("Network error:", networkError);
+        throw new Error(`Network request failed: ${networkError.message}`);
+      }
+
+      if (!response.ok) {
+        console.error("Network response was not OK:", response.status, response.statusText);
+        throw new Error(`Server error: ${response.status} ${response.statusText}`);
+      }
+
+      const text = await response.text();
+      try {
+        const data = JSON.parse(text);
+        if (data.error) {
+          throw new Error(data.error);
+        }
+        return data;
+      } catch (parseError) {
+        console.error("Failed to parse JSON response:", parseError);
+        console.log("Raw response from server:", text);
+        throw new Error("Invalid response from server. Check console.");
+      }
+    }
+
     async function loadDropdowns() {
       mainFormContent.style.display = 'block';
       errorPanel.style.display = 'none';
-      document.getElementById('classSelect').innerHTML = '<option value="">កំពុងទាញយកទិន្នន័យ...</option>';
-      document.getElementById('subjectSelect').innerHTML = '<option value="">កំពុងទាញយកទិន្នន័យ...</option>';
-      document.getElementById('exportClassSelect').innerHTML = '<option value="">កំពុងទាញយកទិន្នន័យ...</option>';
+      
+      // Set all dropdowns to loading state
+      const loadingOption = '<option value="">កំពុងទាញយកទិន្នន័យ...</option>';
+      document.getElementById('classSelect').innerHTML = loadingOption;
+      document.getElementById('subjectSelect').innerHTML = loadingOption;
+      document.getElementById('periodSelect').innerHTML = loadingOption; // New
+      document.getElementById('exportClassSelect').innerHTML = loadingOption;
+      document.getElementById('exportPeriodSelect').innerHTML = loadingOption; // New
 
       try {
-        const [classesRes, subjectsRes] = await Promise.all([
-          fetch(`${SCRIPT_URL}?action=getClassList`),
-          fetch(`${SCRIPT_URL}?action=getSubjectList`)
+        // Fetch all dropdown data in parallel
+        const [classes, subjects, periods] = await Promise.all([
+          fetchJson(`${SCRIPT_URL}?action=getClassList`),
+          fetchJson(`${SCRIPT_URL}?action=getSubjectList`),
+          fetchJson(`${SCRIPT_URL}?action=getPeriodList`) // New
         ]);
-        
-        if (!classesRes.ok || !subjectsRes.ok) {
-          console.error("Network response for classes was not OK:", classesRes.statusText);
-          console.error("Network response for subjects was not OK:", subjectsRes.statusText);
-          throw new Error('Network response was not OK');
-        }
 
-        // ### FIX: Read response as text first for better debugging ###
-        const classesText = await classesRes.text();
-        const subjectsText = await subjectsRes.text();
-        
-        let classes, subjects;
-
-        // Try to parse the text as JSON. If it fails, we know the server sent bad data.
-        try {
-          classes = JSON.parse(classesText);
-          subjects = JSON.parse(subjectsText);
-        } catch (e) {
-          console.error("Failed to parse JSON response from script.");
-          console.log("Raw classes response from server:", classesText);
-          console.log("Raw subjects response from server:", subjectsText);
-          throw new Error("Invalid JSON from server. Check console for raw response.");
-        }
-
-        // This checks if the successfully parsed data is in the correct format (an array).
-        if (!Array.isArray(classes) || !Array.isArray(subjects)) {
-          console.error("Data received from script is not an array.");
-          console.log("Received Classes Data:", classes);
-          console.log("Received Subjects Data:", subjects);
-          throw new Error("Invalid data format received from the server.");
-        }
-
+        // Populate Class dropdowns
         const classSelect = document.getElementById("classSelect");
         const exportClassSelect = document.getElementById("exportClassSelect");
         classSelect.innerHTML = '<option value="">ជ្រើសរើសថ្នាក់</option>';
         exportClassSelect.innerHTML = '<option value="">ជ្រើសរើសថ្នាក់</option>';
-        classes.forEach(cls => {
-          classSelect.innerHTML += `<option value="${cls}">${cls}</option>`;
-          exportClassSelect.innerHTML += `<option value="${cls}">${cls}</option>`;
-        });
+        if (Array.isArray(classes)) {
+          classes.forEach(cls => {
+            classSelect.innerHTML += `<option value="${cls}">${cls}</option>`;
+            exportClassSelect.innerHTML += `<option value="${cls}">${cls}</option>`;
+          });
+        }
 
+        // Populate Subject dropdown
         const subjectSelect = document.getElementById("subjectSelect");
         subjectSelect.innerHTML = '<option value="">ជ្រើសរើសមុខវិជ្ជា</option>';
-        subjects.forEach(sub => {
-          subjectSelect.innerHTML += `<option value="${sub}">${sub}</option>`;
-        });
+        if (Array.isArray(subjects)) {
+          subjects.forEach(sub => {
+            subjectSelect.innerHTML += `<option value="${sub}">${sub}</option>`;
+          });
+        }
+
+        // NEW: Populate Period dropdowns
+        const periodSelect = document.getElementById("periodSelect");
+        const exportPeriodSelect = document.getElementById("exportPeriodSelect");
+        periodSelect.innerHTML = '<option value="">ជ្រើសរើសវគ្គ</option>';
+        exportPeriodSelect.innerHTML = '<option value="">ជ្រើសរើសវគ្គ</option>';
+        if (Array.isArray(periods)) {
+          periods.forEach(period => {
+            // period is {name: "វិច្ឆិកា", value: "Nov2025"}
+            periodSelect.innerHTML += `<option value="${period.value}">${period.name}</option>`;
+            exportPeriodSelect.innerHTML += `<option value="${period.value}">${period.name}</option>`;
+          });
+        }
+
       } catch (error) {
         console.error("Error loading dropdowns:", error);
         mainFormContent.style.display = 'none';
@@ -151,16 +195,17 @@
       const tableBody = document.getElementById("studentTableBody");
       if (!selectedClass) {
         tableBody.innerHTML = "";
+        students = []; // Clear student array
         return;
       }
       tableBody.innerHTML = '<tr><td colspan="5">កំពុងទាញយកទិន្នន័យសិស្ស...</td></tr>';
       try {
-        const res = await fetch(`${SCRIPT_URL}?action=getStudentsByClass&class=${selectedClass}`);
-        students = await res.json();
+        // This gets the master list of students for the class
+        students = await fetchJson(`${SCRIPT_URL}?action=getStudentsByClass&class=${selectedClass}`);
         renderTable();
       } catch (error) {
         console.error("Error loading students:", error);
-        tableBody.innerHTML = '<tr><td colspan="5" style="color:red;">ទាញយកទិន្នន័យសិស្សមិនត្រឹមត្រូវ។</td></tr>';
+        tableBody.innerHTML = `<tr><td colspan="5" style="color:red;">${error.message}</td></tr>`;
       }
     }
 
@@ -177,33 +222,60 @@
               <td style="text-align: left; padding-left: 10px;">${student.name}</td>
               <td>${student.gender}</td>
               <td>${student.class}</td>
-              <td><input type="number" class="score-input" data-row="${student.rowIndex}" style="width:60px;" onkeydown="handleKey(event)"></td>
+              <td><input type="number" class="score-input" data-row="${student.rowIndex}" style="width:60px;"></td>
             </tr>`;
         });
       }
       tableBody.innerHTML = html;
     }
 
-    function handleKey(e) {
+    function handleTableKeydown(e) {
+      if (!e.target.classList.contains('score-input')) return;
       if (e.key === "Enter" || e.key === "Tab") {
         e.preventDefault();
         const inputs = [...document.querySelectorAll(".score-input")];
         const idx = inputs.indexOf(e.target);
-        if (e.key === "Enter" && idx < inputs.length - 1) { // Move down on Enter
-            inputs[idx + 1].focus();
-        } else if (e.key === "Tab" && idx < inputs.length - 1) { // Also handle tab
-            inputs[idx + 1].focus();
+        if (idx < inputs.length - 1) {
+          inputs[idx + 1].focus();
+        } else if (e.key === "Enter") {
+          document.getElementById("submitBtn").focus();
         }
+      }
+    }
+
+    function handleTablePaste(e) {
+      if (!e.target.classList.contains('score-input')) return;
+      e.preventDefault();
+      const pastedData = (e.clipboardData || window.clipboardData).getData('text');
+      if (!pastedData) return;
+
+      const scores = pastedData.trim().split(/\r?\n/);
+      const allInputs = [...document.querySelectorAll(".score-input")];
+      const startIndex = allInputs.indexOf(e.target);
+
+      scores.forEach((score, index) => {
+        const targetIndex = startIndex + index;
+        if (targetIndex < allInputs.length && score.trim() !== "") {
+          allInputs[targetIndex].value = score.trim();
+        }
+      });
+      
+      const nextFocusIndex = startIndex + scores.length;
+      if (nextFocusIndex < allInputs.length) {
+          allInputs[nextFocusIndex].focus();
+      } else if (allInputs.length > 0) {
+          allInputs[allInputs.length - 1].focus();
       }
     }
 
     async function submitScores() {
       const teacher = document.getElementById("teacherInput").value.trim();
-      const month = document.getElementById("monthInput").value.trim();
+      const period = document.getElementById("periodSelect").value; // MODIFIED
       const subject = document.getElementById("subjectSelect").value;
       const classVal = document.getElementById("classSelect").value;
-      if (!teacher || !month || !subject || !classVal) {
-        alert("សូមបំពេញព័ត៌មានទាំងអស់ (គ្រូ, ខែ, មុខវិជ្ជា, ថ្នាក់)");
+      
+      if (!teacher || !period || !subject || !classVal) {
+        alert("សូមបំពេញព័ត៌មានទាំងអស់ (គ្រូ, វគ្គ, មុខវិជ្ជា, ថ្នាក់)");
         return;
       }
 
@@ -224,22 +296,23 @@
       submitBtn.textContent = "កំពុងរក្សាទុក...";
 
       try {
-        const res = await fetch(SCRIPT_URL, {
+        // MODIFIED: Send 'period' instead of 'month'
+        const payload = { teacher, period, subject, scores };
+        const result = await fetchJson(SCRIPT_URL, {
           method: 'POST',
-          body: JSON.stringify({ action: 'submitScores', payload: { teacher, month, subject, scores } }),
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+          body: JSON.stringify({ action: 'submitScores', payload }),
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' } // Keep as text/plain if GAS requires
         });
-        const result = await res.json();
         
-        const messageDiv = document.getElementById("message");
-        messageDiv.innerText = result.message;
-        messageDiv.style.color = result.status === 'success' ? 'green' : 'red';
-        setTimeout(() => messageDiv.innerText = "", 5000);
-        if(result.status === 'success') loadStudents();
+        showMessage(result.message, result.status === 'success');
+        if(result.status === 'success') {
+          // Clear scores after successful submission
+          document.querySelectorAll(".score-input").forEach(input => input.value = "");
+        }
 
       } catch (error) {
         console.error("Error submitting scores:", error);
-        alert("មានបញ្ហាក្នុងការរក្សាទុកពិន្ទុ។");
+        showMessage(`មានបញ្ហា៖ ${error.message}`, false);
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = "បញ្ចូលពិន្ទុ";
@@ -247,9 +320,12 @@
     }
 
     function exportExcel() {
+      // MODIFIED: Get both class and period
       const exportClass = document.getElementById("exportClassSelect").value;
-      if (!exportClass) {
-        alert("សូមជ្រើសរើសថ្នាក់សម្រាប់ទាញយក");
+      const exportPeriod = document.getElementById("exportPeriodSelect").value;
+
+      if (!exportClass || !exportPeriod) {
+        alert("សូមជ្រើសរើសថ្នាក់ និង វគ្គ សម្រាប់ទាញយក");
         return;
       }
       
@@ -257,7 +333,8 @@
       exportBtn.disabled = true;
       exportBtn.textContent = "កំពុងទាញយក...";
 
-      const exportUrl = `${SCRIPT_URL}?action=exportClassToExcel&class=${encodeURIComponent(exportClass)}`;
+      // MODIFIED: Add period to the export URL
+      const exportUrl = `${SCRIPT_URL}?action=exportClassToExcel&class=${encodeURIComponent(exportClass)}&period=${encodeURIComponent(exportPeriod)}`;
       
       window.open(exportUrl, '_blank');
       
@@ -267,13 +344,18 @@
       }, 3000);
     }
 
+    // --- Event Listeners ---
     document.getElementById("classSelect").addEventListener("change", loadStudents);
     document.getElementById("submitBtn").addEventListener("click", submitScores);
     document.getElementById("exportBtn").addEventListener("click", exportExcel);
-    retryBtn.addEventListener('click', loadDropdowns); // Add listener for the new button
+    retryBtn.addEventListener('click', loadDropdowns);
+    
+    document.getElementById("studentTableBody").addEventListener("keydown", handleTableKeydown);
+    document.getElementById("studentTableBody").addEventListener("paste", handleTablePaste);
+
     window.onload = loadDropdowns;
 
-    // Register the Service Worker
+    // --- Service Worker ---
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/service-worker.js').then(registration => {
