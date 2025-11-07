@@ -12,14 +12,74 @@
   <title>ប្រព័ន្ធបញ្ចូលពិន្ទុសិស្សសម្រាប់គ្រូបន្ទុកថ្នាក់</title>
   <link href="https://fonts.googleapis.com/css2?family=Khmer+OS+Battambang&family=Khmer+OS+Muol+Light&display=swap" rel="stylesheet">
   <style>
-    body{margin:0;font-family:'Khmer OS Battambang',sans-serif;background:#f4f6f8}header{text-align:center;padding:20px;background-color:#007BFF;color:#fff}header h1{font-family:'Khmer OS Muol Light';font-size:28px;margin:0}header h2{font-size:20px;margin:5px 0 0}.container{display:flex;padding:20px;gap:20px}.form-panel{width:35%;background:#fff;padding:20px;box-shadow:2px 0 5px rgba(0,0,0,.1);position:sticky;top:20px;align-self:flex-start;border-radius:5px;font-family:'Khmer OS Battambang',sans-serif}.table-panel{width:65%;background:#fff;padding:20px;box-shadow:2px 0 5px rgba(0,0,0,.1);border-radius:5px;overflow-x:auto}label{font-weight:700;display:block;margin-top:10px;font-family:'Khmer OS Battambang',sans-serif}select,input[type=text],input[type=number]{width:100%;padding:8px;font-size:16px;border-radius:5px;border:1px solid #ccc;box-sizing:border-box;height:40px;font-family:'Khmer OS Battambang',sans-serif}.row{display:flex;gap:10px;align-items:flex-end}.row>div{flex:1}button{background-color:#007BFF;border:none;color:#fff;padding:8px;font-size:16px;border-radius:5px;cursor:pointer;font-family:'Khmer OS Battambang',sans-serif;width:100%;margin-top:15px;height:40px;box-sizing:border-box}button:hover{background-color:#0056b3}.export-section{margin-top:20px;border-top:1px solid #ccc;padding-top:15px}.export-section .row button{margin-top:0}table{width:100%;border-collapse:collapse;font-family:'Khmer OS Battambang'}th,td{border:1px solid #ccc;padding:10px 5px;text-align:center;font-size:15px}th{background:#007BFF;color:#fff;position:sticky;top:-1px}#message{margin-top:10px;font-weight:700;color:green;height:20px}@media (max-width:768px){.container{flex-direction:column;padding:10px;gap:15px}.form-panel,.table-panel{width:100%;box-sizing:border-box;position:static}.row{flex-direction:column;gap:0;align-items:stretch}.row>div{margin-bottom:10px}.export-section .row{flex-direction:row}header h1{font-size:22px}header h2{font-size:16px}th,td{font-size:14px;padding:8px 4px}}
+    body{margin:0;font-family:'Khmer OS Battambang',sans-serif;background:#f4f6f8}
+    
+    /* MODIFIED HEADER STYLES */
+    header{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      background-color:#007BFF;
+      color:#fff
+    }
+    /* NEW: Logo styles */
+    .header-logo {
+      height: 60px;
+      width: auto;
+      flex-shrink: 0;
+    }
+    /* NEW: Text container */
+    .header-text {
+      text-align: center;
+      flex-grow: 1;
+      padding: 0 15px; /* Add padding to prevent text touching logos */
+    }
+    header h1{font-family:'Khmer OS Muol Light';font-size:28px;margin:0}
+    header h2{font-size:20px;margin:5px 0 0}
+    /* END OF HEADER MODIFICATIONS */
+
+    .container{display:flex;padding:20px;gap:20px}.form-panel{width:35%;background:#fff;padding:20px;box-shadow:2px 0 5px rgba(0,0,0,.1);position:sticky;top:20px;align-self:flex-start;border-radius:5px;font-family:'Khmer OS Battambang',sans-serif}.table-panel{width:65%;background:#fff;padding:20px;box-shadow:2px 0 5px rgba(0,0,0,.1);border-radius:5px;overflow-x:auto}label{font-weight:700;display:block;margin-top:10px;font-family:'Khmer OS Battambang',sans-serif}select,input[type=text],input[type=number]{width:100%;padding:8px;font-size:16px;border-radius:5px;border:1px solid #ccc;box-sizing:border-box;height:40px;font-family:'Khmer OS Battambang',sans-serif}.row{display:flex;gap:10px;align-items:flex-end}.row>div{flex:1}button{background-color:#007BFF;border:none;color:#fff;padding:8px;font-size:16px;border-radius:5px;cursor:pointer;font-family:'Khmer OS Battambang',sans-serif;width:100%;margin-top:15px;height:40px;box-sizing:border-box}button:hover{background-color:#0056b3}.export-section{margin-top:20px;border-top:1px solid #ccc;padding-top:15px}.export-section .row button{margin-top:0}table{width:100%;border-collapse:collapse;font-family:'Khmer OS Battambang'}th,td{border:1px solid #ccc;padding:10px 5px;text-align:center;font-size:15px}th{background:#007BFF;color:#fff;position:sticky;top:-1px}#message{margin-top:10px;font-weight:700;color:green;height:20px}
+    
+    @media (max-width:768px){
+      .container{flex-direction:column;padding:10px;gap:15px}.form-panel,.table-panel{width:100%;box-sizing:border-box;position:static}.row{flex-direction:column;gap:0;align-items:stretch}.row>div{margin-bottom:10px}.export-section .row{flex-direction:row}
+      
+      /* MODIFIED: Responsive header styles */
+      header {
+        padding: 10px;
+      }
+      .header-logo {
+        height: 40px; /* Smaller logo for mobile */
+      }
+      .header-text {
+        padding: 0 5px; /* Less padding for mobile */
+      }
+      header h1{
+        font-size: 16px; /* Adjusted font size */
+      }
+      header h2{
+        font-size: 12px; /* Adjusted font size */
+      }
+      /* END OF RESPONSIVE MODIFICATIONS */
+
+      th,td{font-size:14px;padding:8px 4px}}
   </style>
 </head>
 <body>
+  <!-- MODIFIED HEADER SECTION -->
   <header>
-    <h1>វិទ្យាល័យ ហ៊ុន សែន ក្រាំងស្រម៉</h1>
-    <h2>ប្រព័ន្ធបញ្ចូលពិន្ទុសិស្សសម្រាប់គ្រូបន្ទុកថ្នាក់</h2>
+    <img src="/icons/school_logo.PNG" alt="School Logo" class="header-logo" 
+         onerror="this.style.display='none'"> <!-- Hides if logo fails to load -->
+    
+    <div class="header-text">
+      <h1>វិទ្យាល័យ ហ៊ុន សែន ក្រាំងស្រម៉</h1>
+      <h2>ប្រព័ន្ធបញ្ចូលពិន្ទុសិស្សសម្រាប់គ្រូបន្ទុកថ្នាក់</h2>
+    </div>
+    
+    <img src="/icons/moeys_logo.PNG" alt="MoEYS Logo" class="header-logo"
+         onerror="this.style.display='none'"> <!-- Hides if logo fails to load -->
   </header>
+  <!-- END OF MODIFIED HEADER -->
 
   <div class="container">
     <div class="form-panel">
@@ -39,7 +99,7 @@
         <div class="row">
           <!-- MODIFIED: Replaced month input with period select -->
           <div>
-            <label>ជ្រើសរើសខែ:</label>
+            <label>ជ្រើសរើសវគ្គ:</label>
             <select id="periodSelect"><option value="">កំពុងទាញយកទិន្នន័យ...</option></select>
           </div>
           <div><label>ឈ្មោះគ្រូ:</label><input type="text" id="teacherInput" placeholder="ឧ. ទឿន ដាលី"></div>
@@ -53,11 +113,11 @@
           <!-- MODIFIED: Added period select for export -->
           <div class="row">
             <div>
-              <label>ជ្រើសរើសថ្នាក់:</label>
+              <label>ថ្នាក់:</label>
               <select id="exportClassSelect"><option value="">កំពុងទាញយកទិន្នន័យ...</option></select>
             </div>
             <div>
-              <label>ជ្រើសរើសខែ:</label>
+              <label>វគ្គ:</label>
               <select id="exportPeriodSelect"><option value="">កំពុងទាញយកទិន្នន័យ...</option></select>
             </div>
           </div>
@@ -85,7 +145,7 @@
   </div>
 
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwy2bZFDRWYNqnzO25ihcnB4eQYJOCLpSmXY4ln4CS74-lQzd3lqkfdjb4vdfdkVCjpFw/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzmLiz076vLjp5Hf--toh3n23D8zc84N5EygKS7NQ3a7rpGQ1VcuKallQIcMl5vIeBh8w/exec';
     let students = [];
 
     const mainFormContent = document.getElementById('main-form-content');
@@ -173,8 +233,8 @@
         // NEW: Populate Period dropdowns
         const periodSelect = document.getElementById("periodSelect");
         const exportPeriodSelect = document.getElementById("exportPeriodSelect");
-        periodSelect.innerHTML = '<option value="">ជ្រើសរើសខែ</option>';
-        exportPeriodSelect.innerHTML = '<option value="">ជ្រើសរើសខែ</option>';
+        periodSelect.innerHTML = '<option value="">ជ្រើសរើសវគ្គ</option>';
+        exportPeriodSelect.innerHTML = '<option value="">ជ្រើសរើសវគ្គ</option>';
         if (Array.isArray(periods)) {
           periods.forEach(period => {
             // period is {name: "វិច្ឆិកា", value: "Nov2025"}
@@ -275,7 +335,7 @@
       const classVal = document.getElementById("classSelect").value;
       
       if (!teacher || !period || !subject || !classVal) {
-        alert("សូមបំពេញព័ត៌មានទាំងអស់ (គ្រូ, ខែ, មុខវិជ្ជា, ថ្នាក់)");
+        alert("សូមបំពេញព័ត៌មានទាំងអស់ (គ្រូ, វគ្គ, មុខវិជ្ជា, ថ្នាក់)");
         return;
       }
 
@@ -325,7 +385,7 @@
       const exportPeriod = document.getElementById("exportPeriodSelect").value;
 
       if (!exportClass || !exportPeriod) {
-        alert("សូមជ្រើសរើសថ្នាក់ និង ខែ សម្រាប់ទាញយក");
+        alert("សូមជ្រើសរើសថ្នាក់ និង វគ្គ សម្រាប់ទាញយក");
         return;
       }
       
