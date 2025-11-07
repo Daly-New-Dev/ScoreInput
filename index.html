@@ -39,7 +39,7 @@
         <div class="row">
           <!-- MODIFIED: Replaced month input with period select -->
           <div>
-            <label>ជ្រើសរើសវគ្គ:</label>
+            <label>ជ្រើសរើសខែ:</label>
             <select id="periodSelect"><option value="">កំពុងទាញយកទិន្នន័យ...</option></select>
           </div>
           <div><label>ឈ្មោះគ្រូ:</label><input type="text" id="teacherInput" placeholder="ឧ. ទឿន ដាលី"></div>
@@ -53,11 +53,11 @@
           <!-- MODIFIED: Added period select for export -->
           <div class="row">
             <div>
-              <label>ថ្នាក់:</label>
+              <label>ជ្រើសរើសថ្នាក់:</label>
               <select id="exportClassSelect"><option value="">កំពុងទាញយកទិន្នន័យ...</option></select>
             </div>
             <div>
-              <label>វគ្គ:</label>
+              <label>ជ្រើសរើសខែ:</label>
               <select id="exportPeriodSelect"><option value="">កំពុងទាញយកទិន្នន័យ...</option></select>
             </div>
           </div>
@@ -173,8 +173,8 @@
         // NEW: Populate Period dropdowns
         const periodSelect = document.getElementById("periodSelect");
         const exportPeriodSelect = document.getElementById("exportPeriodSelect");
-        periodSelect.innerHTML = '<option value="">ជ្រើសរើសវគ្គ</option>';
-        exportPeriodSelect.innerHTML = '<option value="">ជ្រើសរើសវគ្គ</option>';
+        periodSelect.innerHTML = '<option value="">ជ្រើសរើសខែ</option>';
+        exportPeriodSelect.innerHTML = '<option value="">ជ្រើសរើសខែ</option>';
         if (Array.isArray(periods)) {
           periods.forEach(period => {
             // period is {name: "វិច្ឆិកា", value: "Nov2025"}
@@ -275,7 +275,7 @@
       const classVal = document.getElementById("classSelect").value;
       
       if (!teacher || !period || !subject || !classVal) {
-        alert("សូមបំពេញព័ត៌មានទាំងអស់ (គ្រូ, វគ្គ, មុខវិជ្ជា, ថ្នាក់)");
+        alert("សូមបំពេញព័ត៌មានទាំងអស់ (គ្រូ, ខែ, មុខវិជ្ជា, ថ្នាក់)");
         return;
       }
 
@@ -325,7 +325,7 @@
       const exportPeriod = document.getElementById("exportPeriodSelect").value;
 
       if (!exportClass || !exportPeriod) {
-        alert("សូមជ្រើសរើសថ្នាក់ និង វគ្គ សម្រាប់ទាញយក");
+        alert("សូមជ្រើសរើសថ្នាក់ និង ខែ សម្រាប់ទាញយក");
         return;
       }
       
