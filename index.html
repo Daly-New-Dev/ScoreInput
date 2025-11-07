@@ -33,7 +33,7 @@
     /* NEW: Specific logo IDs */
     #school-logo {
       height: 100px; /* User request */
-      margin-right: 10px; /* Default spacing */
+      /* Removed margin-right to allow margin-left on text block to be exact */
     }
     #moeys-logo {
       height: 100px; /* User request */
@@ -169,7 +169,7 @@
   </div>
 
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwwb6vnicBDb7wbpBZnjiSJG-TEG0MT3WMS2EUSjiM3frshvXlbWyV1DVYH9wrkqbBE2Q/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxcwGOHAxLBT8PBZIcXEOkoj4SlFomGDqw19wqn-WB_e0IuAWDFW9KePY2IDJLzgf9Usw/exec';
     let students = [];
 
     const mainFormContent = document.getElementById('main-form-content');
@@ -261,7 +261,7 @@
         exportPeriodSelect.innerHTML = '<option value="">ជ្រើសរើសវគ្គ</option>';
         if (Array.isArray(periods)) {
           periods.forEach(period => {
-            // period is {name: "វិច្ឆិកា", value: "Nov2025"}
+            // period is {name: "វិច្ឆកា", value: "Nov2025"}
             periodSelect.innerHTML += `<option value="${period.value}">${period.name}</option>`;
             exportPeriodSelect.innerHTML += `<option value="${period.value}">${period.name}</option>`;
           });
