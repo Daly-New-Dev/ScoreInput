@@ -21,20 +21,36 @@
       align-items: center;
       padding: 10px 20px;
       background-color:#007BFF;
-      color:#fff
+      color:#fff;
     }
     /* NEW: Logo styles */
     .header-logo {
-      height: 60px;
+      height: 60px; /* Default height */
       width: auto;
       flex-shrink: 0;
     }
+
+    /* NEW: Specific logo IDs */
+    #school-logo {
+      height: 100px; /* User request */
+      margin-right: 10px; /* Default spacing */
+    }
+    #moeys-logo {
+      height: 100px; /* User request */
+      margin-left: 10px; /* Default spacing */
+    }
+
     /* NEW: Text container */
     .header-text {
       text-align: center;
       flex-grow: 1;
-      padding: 0 15px; /* Add padding to prevent text touching logos */
+      padding: 0 15px;
     }
+    /* User request: 100px spacing from school name */
+    #school-logo + .header-text {
+      margin-left: 100px;
+    }
+
     header h1{font-family:'Khmer OS Muol Light';font-size:28px;margin:0}
     header h2{font-size:20px;margin:5px 0 0}
     /* END OF HEADER MODIFICATIONS */
@@ -51,6 +67,14 @@
       .header-logo {
         height: 40px; /* Smaller logo for mobile */
       }
+      /* Responsive overrides for IDs */
+      #school-logo, #moeys-logo {
+         height: 40px;
+      }
+      #school-logo + .header-text {
+         margin-left: 10px; /* Reduce spacing on mobile */
+      }
+
       .header-text {
         padding: 0 5px; /* Less padding for mobile */
       }
@@ -68,7 +92,7 @@
 <body>
   <!-- MODIFIED HEADER SECTION -->
   <header>
-    <img src="/icons/school_logo.PNG" alt="School Logo" class="header-logo" 
+    <img src="/icons/school_logo.PNG" alt="School Logo" class="header-logo" id="school-logo"
          onerror="this.style.display='none'"> <!-- Hides if logo fails to load -->
     
     <div class="header-text">
@@ -76,7 +100,7 @@
       <h2>ប្រព័ន្ធបញ្ចូលពិន្ទុសិស្សសម្រាប់គ្រូបន្ទុកថ្នាក់</h2>
     </div>
     
-    <img src="/icons/moeys_logo.PNG" alt="MoEYS Logo" class="header-logo"
+    <img src="/icons/moeys_logo.PNG" alt="MoEYS Logo" class="header-logo" id="moeys-logo"
          onerror="this.style.display='none'"> <!-- Hides if logo fails to load -->
   </header>
   <!-- END OF MODIFIED HEADER -->
