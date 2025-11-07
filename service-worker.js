@@ -1,68 +1,76 @@
-const CACHE_NAME = 'student-scores-cache-v4'; // Updated cache name to force update
-const urlsToCache = [
-  '/',
-  '/index.html'
+// Define a unique cache name
+const CACHE_NAME = 'student-score-app-v1';
+
+// List of static assets to cache on install
+const ASSETS_TO_CACHE = [
+  '/', // The main index.html file
+  'https://fonts.googleapis.com/css2?family=Khmer+OS+Battambang&family=Khmer+OS+Muol+Light&display=swap'
+  // Other static assets like font files could be added if their exact URLs are known
 ];
 
-// Install the service worker and cache the static assets
+// The Google Apps Script URL that should ALWAYS be fetched from the network
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzmLiz076vLjp5Hf--toh3n23D8zc84N5EygKS7NQ3a7rpGQ1VcuKallQIcMl5vIeBh8w/exec';
+
+// Install event: Cache all static assets
 self.addEventListener('install', event => {
+  console.log('Service Worker: Installing...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
+        console.log('Service Worker: Caching static assets.');
+        return cache.addAll(ASSETS_TO_CACHE);
       })
+      .then(() => self.skipWaiting())
   );
 });
 
-// ### FIX: Implemented a "Cache, then Network" strategy ###
-// This is a more robust pattern to prevent refresh errors.
-self.addEventListener('fetch', event => {
-  // Strategy 1: For API calls to Google Scripts, we must always go to the network.
-  if (event.request.url.startsWith('https://script.google.com')) {
-    event.respondWith(fetch(event.request));
-    return;
-  }
-
-  // Strategy 2: For our app assets (like index.html), serve from cache first for a fast load,
-  // then update the cache in the background from the network.
-  event.respondWith(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.match(event.request).then(response => {
-        // Fetch a fresh version from the network in the background to update the cache.
-        const fetchPromise = fetch(event.request).then(networkResponse => {
-          // If we get a valid response, update the cache.
-          if (networkResponse && networkResponse.status === 200) {
-            cache.put(event.request, networkResponse.clone());
-          }
-          return networkResponse;
-        }).catch(err => {
-          // The network request failed, which is okay if we're offline.
-          console.log('Network request failed, serving from cache if available.', err);
-        });
-
-        // Return the cached version immediately if it exists,
-        // otherwise, wait for the network to respond.
-        return response || fetchPromise;
-      });
-    })
-  );
-});
-
-
-// Clean up old caches
+// Activate event: Clean up old caches
 self.addEventListener('activate', event => {
-  const cacheWhitelist = [CACHE_NAME];
+  console.log('Service Worker: Activating...');
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cacheName => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            console.log('Deleting old cache:', cacheName);
+          if (cacheName !== CACHE_NAME) {
+            console.log('Service Worker: Clearing old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
-    })
+    }).then(() => self.clients.claim())
+  );
+});
+
+// Fetch event: Handle network requests
+self.addEventListener('fetch', event => {
+  const requestUrl = event.request.url;
+
+  // 1. ALWAYS go to the network for Google Apps Script requests.
+  // This is crucial for submitting scores and fetching live data.
+  if (requestUrl.startsWith(SCRIPT_URL)) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
+  // 2. For all other requests (static assets), use "Network First, then Cache"
+  // This ensures users get the freshest content if online, but the app
+  // still loads if offline.
+  event.respondWith(
+    fetch(event.request)
+      .then(networkResponse => {
+        // If the request is successful, cache it and return it
+        return caches.open(CACHE_NAME).then(cache => {
+          // We only cache successful GET requests
+          if (event.request.method === 'GET' && networkResponse.ok) {
+            cache.put(event.request, networkResponse.clone());
+          }
+          return networkResponse;
+        });
+      })
+      .catch(() => {
+        // If the network request fails (e.g., offline), try to get it from the cache
+        console.log('Service Worker: Network failed, serving from cache for:', requestUrl);
+        return caches.match(event.request);
+      })
   );
 });
