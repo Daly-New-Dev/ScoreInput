@@ -6,447 +6,732 @@
   
   <!-- PWA Meta Tags -->
   <meta name="theme-color" content="#007BFF"/>
-  <link rel="manifest" href="/manifest.json">
-  <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192x192.png">
 
   <title>ប្រព័ន្ធបញ្ចូលពិន្ទុសិស្សសម្រាប់គ្រូបន្ទុកថ្នាក់</title>
   <link href="https://fonts.googleapis.com/css2?family=Khmer+OS+Battambang&family=Khmer+OS+Muol+Light&display=swap" rel="stylesheet">
   <style>
-    body{margin:0;font-family:'Khmer OS Battambang',sans-serif;background:#f4f6f8}
+    /* GLOBAL RESETS */
+    body { 
+      margin: 0; 
+      font-family: 'Khmer OS Battambang', sans-serif; 
+      background: #f4f6f8; 
+      height: 100vh; /* Full viewport height */
+      overflow: hidden; /* Prevent body scroll, use internal scrolls */
+      display: flex;
+      flex-direction: column;
+    }
     
-    /* MODIFIED HEADER STYLES */
-    header{
+    /* --- HEADER STYLES (Fixed at Top) --- */
+    header {
+      flex-shrink: 0; /* Prevent header from shrinking */
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 20px;
-      background-color:#007BFF;
-      color:#fff;
+      padding: 10px 30px; 
+      background-color: #007BFF;
+      color: #fff;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+      z-index: 1000;
+      height: 130px; /* Fixed height for consistency */
+      box-sizing: border-box;
     }
-    /* NEW: Logo styles */
+
     .header-logo {
-      height: 60px; /* Default height */
       width: auto;
+      object-fit: contain;
       flex-shrink: 0;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
     }
 
-    /* NEW: Specific logo IDs */
-    #school-logo {
-      height: 100px; /* User request */
-      /* Removed margin-right to allow margin-left on text block to be exact */
-    }
-    #moeys-logo {
-      height: 100px; /* User request */
-      margin-left: 10px; /* Default spacing */
-    }
+    #school-logo { height: 100px; }
+    #moeys-logo { height: 100px; }
 
-    /* NEW: Text container */
     .header-text {
-      text-align: center;
       flex-grow: 1;
+      text-align: center;
       padding: 0 15px;
     }
-    /* User request: 100px spacing from school name */
-    #school-logo + .header-text {
-      margin-left: 100px;
+
+    header h1 {
+      font-family: 'Khmer OS Muol Light', serif;
+      font-size: 28px;
+      margin: 0 0 5px 0;
+      line-height: 1.4;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    }
+    
+    header h2 {
+      font-family: 'Khmer OS Battambang', sans-serif;
+      font-size: 20px;
+      margin: 0;
+      font-weight: normal;
+      opacity: 0.95;
     }
 
-    header h1{font-family:'Khmer OS Muol Light';font-size:28px;margin:0}
-    header h2{font-size:20px;margin:5px 0 0}
-    /* END OF HEADER MODIFICATIONS */
-
-    .container{display:flex;padding:20px;gap:20px}.form-panel{width:35%;background:#fff;padding:20px;box-shadow:2px 0 5px rgba(0,0,0,.1);position:sticky;top:20px;align-self:flex-start;border-radius:5px;font-family:'Khmer OS Battambang',sans-serif}.table-panel{width:65%;background:#fff;padding:20px;box-shadow:2px 0 5px rgba(0,0,0,.1);border-radius:5px;overflow-x:auto}label{font-weight:700;display:block;margin-top:10px;font-family:'Khmer OS Battambang',sans-serif}select,input[type=text],input[type=number]{width:100%;padding:8px;font-size:16px;border-radius:5px;border:1px solid #ccc;box-sizing:border-box;height:40px;font-family:'Khmer OS Battambang',sans-serif}.row{display:flex;gap:10px;align-items:flex-end}.row>div{flex:1}button{background-color:#007BFF;border:none;color:#fff;padding:8px;font-size:16px;border-radius:5px;cursor:pointer;font-family:'Khmer OS Battambang',sans-serif;width:100%;margin-top:15px;height:40px;box-sizing:border-box}button:hover{background-color:#0056b3}.export-section{margin-top:20px;border-top:1px solid #ccc;padding-top:15px}.export-section .row button{margin-top:0}table{width:100%;border-collapse:collapse;font-family:'Khmer OS Battambang'}th,td{border:1px solid #ccc;padding:10px 5px;text-align:center;font-size:15px}th{background:#007BFF;color:#fff;position:sticky;top:-1px}#message{margin-top:10px;font-weight:700;color:green;height:20px}
+    /* MAIN CONTENT CONTAINER */
+    .container { 
+      display: flex; 
+      padding: 20px; 
+      gap: 20px; 
+      max-width: 1400px; 
+      margin: 0 auto;
+      width: 100%;
+      flex-grow: 1; /* Fill remaining vertical space */
+      overflow: hidden; /* Prevent overflow outside container */
+      box-sizing: border-box;
+    }
     
-    @media (max-width:768px){
-      .container{flex-direction:column;padding:10px;gap:15px}.form-panel,.table-panel{width:100%;box-sizing:border-box;position:static}.row{flex-direction:column;gap:0;align-items:stretch}.row>div{margin-bottom:10px}.export-section .row{flex-direction:row}
-      
-      /* MODIFIED: Responsive header styles */
-      header {
+    /* FORM PANEL (Left) */
+    .form-panel {
+      width: 35%;
+      background: #fff;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      overflow-y: auto; /* Allow form to scroll if screen is short */
+      height: 100%;
+      box-sizing: border-box;
+    }
+
+    /* TABLE PANEL (Right) */
+    .table-panel {
+      width: 65%;
+      background: #fff;
+      padding: 0; /* Remove padding to let header touch edges */
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      overflow: hidden; /* Contains the scrollable table area */
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      box-sizing: border-box;
+    }
+
+    /* SCROLLABLE TABLE AREA */
+    .table-scroll-area {
+        flex-grow: 1;
+        overflow: auto; /* Scrollbar appears here */
+        padding: 0 10px 10px 10px;
+    }
+
+    /* FORM ELEMENTS */
+    label { font-weight: 700; display: block; margin-top: 15px; margin-bottom: 5px; color: #333; }
+    
+    select, input[type=text], input[type=number] {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+      box-sizing: border-box;
+      height: 45px;
+      font-family: 'Khmer OS Battambang', sans-serif;
+      transition: border-color 0.3s;
+    }
+    
+    select:focus, input:focus { border-color: #007BFF; outline: none; }
+
+    .row { display: flex; gap: 15px; align-items: flex-end; }
+    .row > div { flex: 1; }
+
+    /* RADIO BUTTON STYLES */
+    .radio-group {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 15px;
+        background: #e9ecef;
         padding: 10px;
-      }
-      .header-logo {
-        height: 40px; /* Smaller logo for mobile */
-      }
-      /* Responsive overrides for IDs */
-      #school-logo, #moeys-logo {
-         height: 40px;
-      }
-      #school-logo + .header-text {
-         margin-left: 10px; /* Reduce spacing on mobile */
-      }
+        border-radius: 6px;
+    }
+    .radio-group label {
+        margin: 0;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: normal;
+        color: #333;
+    }
+    .radio-group input[type="radio"] { width: 18px; height: 18px; margin: 0; cursor: pointer; }
 
-      .header-text {
-        padding: 0 5px; /* Less padding for mobile */
-      }
-      header h1{
-        font-size: 16px; /* Adjusted font size */
-      }
-      header h2{
-        font-size: 12px; /* Adjusted font size */
-      }
-      /* END OF RESPONSIVE MODIFICATIONS */
+    /* BUTTONS */
+    button {
+      background-color: #007BFF;
+      border: none;
+      color: #fff;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: 'Khmer OS Battambang', sans-serif;
+      width: 100%;
+      margin-top: 20px;
+      height: 45px;
+      box-sizing: border-box;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+    
+    button:hover { background-color: #0056b3; }
+    button:disabled { background-color: #ccc; cursor: not-allowed; }
 
-      th,td{font-size:14px;padding:8px 4px}}
+    /* EXPORT SECTION */
+    .export-section { margin-top: 30px; border-top: 2px dashed #eee; padding-top: 20px; }
+    .export-btn { background-color: #28a745; }
+    .export-btn:hover { background-color: #218838; }
+
+    /* TABLE STYLES */
+    table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 600px; }
+    
+    /* Compact Row Height (~20% smaller) */
+    th, td { border-bottom: 1px solid #e0e0e0; border-right: 1px solid #e0e0e0; padding: 6px 4px; text-align: center; font-size: 15px; }
+    td { border-left: 1px solid #e0e0e0; }
+
+    /* STICKY TABLE HEADER */
+    th { 
+      background: #007BFF; 
+      color: #fff; 
+      position: sticky; 
+      top: 0; /* Sticks to top of .table-scroll-area */
+      z-index: 10; 
+      padding-top: 12px;
+      padding-bottom: 12px;
+      border-top: none;
+    }
+    
+    tr:nth-child(even) { background-color: #f9f9f9; }
+    tr:hover { background-color: #f1f1f1; }
+
+    /* Compact Input Height */
+    .score-input {
+      text-align: center;
+      height: 30px; /* Reduced from 35px */
+      border: 1px solid #ccc;
+      font-size: 15px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .score-input:focus { background-color: #e8f0fe; border-color: #007BFF; }
+
+    #message { margin-top: 15px; font-weight: 700; min-height: 20px; text-align: center; }
+    
+    #error-panel {
+      display: none;
+      text-align: center;
+      padding: 20px;
+      background-color: #ffebee;
+      border: 1px solid #f44336;
+      border-radius: 8px;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      body { height: auto; overflow: auto; display: block; } /* Allow body scroll on mobile */
+      
+      header { height: auto; padding: 10px; position: sticky; top: 0; } /* Sticky header on mobile */
+      
+      #school-logo { height: 50px; }
+      #moeys-logo { height: 50px; }
+      header h1 { font-size: 16px; line-height: 1.3; }
+      header h2 { font-size: 12px; margin-top: 2px; }
+      .header-text { padding: 0 5px; }
+
+      .container { 
+        flex-direction: column; 
+        padding: 10px; 
+        gap: 15px; 
+        height: auto; 
+        margin-top: 0;
+      }
+      
+      .form-panel { width: 100%; height: auto; }
+      
+      .table-panel { 
+        width: 100%; 
+        height: auto; 
+        /* Give table fixed height on mobile so header sticks properly */
+        height: 70vh; 
+      }
+      
+      .row { flex-direction: column; gap: 0; }
+      .row > div { margin-bottom: 10px; }
+      .export-section .row { flex-direction: row; gap: 10px; }
+      th, td { font-size: 13px; padding: 6px 4px; }
+    }
   </style>
 </head>
 <body>
-  <!-- MODIFIED HEADER SECTION -->
+
   <header>
-    <img src="/icons/school_logo.PNG" alt="School Logo" class="header-logo" id="school-logo"
-         onerror="this.style.display='none'"> <!-- Hides if logo fails to load -->
-    
+    <img src="icons/school_logo.PNG" alt="School Logo" class="header-logo" id="school-logo"
+         onerror="this.style.visibility='hidden'"> 
     <div class="header-text">
       <h1>វិទ្យាល័យ ហ៊ុន សែន ក្រាំងស្រម៉</h1>
       <h2>ប្រព័ន្ធបញ្ចូលពិន្ទុសិស្សសម្រាប់គ្រូបន្ទុកថ្នាក់</h2>
     </div>
-    
-    <img src="/icons/moeys_logo.PNG" alt="MoEYS Logo" class="header-logo" id="moeys-logo"
-         onerror="this.style.display='none'"> <!-- Hides if logo fails to load -->
+    <img src="icons/moeys_logo.PNG" alt="MoEYS Logo" class="header-logo" id="moeys-logo"
+         onerror="this.style.visibility='hidden'"> 
   </header>
-  <!-- END OF MODIFIED HEADER -->
 
   <div class="container">
     <div class="form-panel">
-      <!-- Main form content is now in a container to be hidden on error -->
+      
+      <div id="error-panel">
+        <p style="color: #d32f2f; font-weight: bold; font-size: 16px;">ទាញយកទិន្នន័យមិនត្រឹមត្រូវ</p>
+        <p style="color: #555; font-size: 14px; margin: 5px 0 15px 0;">សូមពិនិត្យអ៊ីនធឺណិត រួចព្យាយាមម្តងទៀត</p>
+        <button id="retryBtn" style="width: auto; padding: 8px 20px; margin: 0;">ព្យាយាមម្តងទៀត</button>
+      </div>
+
       <div id="main-form-content">
+        
+        <label>ជ្រើសរើសរបៀបបញ្ចូល (Select Mode):</label>
+        <div class="radio-group">
+            <label>
+                <input type="radio" name="inputMode" value="class" checked onchange="setMode('class')"> 
+                តាមថ្នាក់ (By Class)
+            </label>
+            <label>
+                <input type="radio" name="inputMode" value="room" onchange="setMode('room')"> 
+                តាមបន្ទប់ (By Room)
+            </label>
+        </div>
+
         <div class="row">
           <div>
-            <label>ជ្រើសរើសថ្នាក់:</label>
-            <select id="classSelect"><option value="">កំពុងទាញយកទិន្នន័យ...</option></select>
+            <label>កម្រិតថ្នាក់ (Grade):</label>
+            <select id="gradeSelect">
+              <option value="">កំពុងទាញយក...</option>
+            </select>
           </div>
           <div>
-            <label>ជ្រើសរើសមុខវិជ្ជា:</label>
-            <select id="subjectSelect"><option value="">កំពុងទាញយកទិន្នន័យ...</option></select>
+            <label id="subSelectLabel">ថ្នាក់ (Class):</label>
+            <select id="subSelect">
+              <option value="">សូមជ្រើសរើសកម្រិតថ្នាក់មុន</option>
+            </select>
           </div>
         </div>
 
         <div class="row">
-          <!-- MODIFIED: Replaced month input with period select -->
           <div>
-            <label>ជ្រើសរើសខែ:</label>
-            <select id="periodSelect"><option value="">កំពុងទាញយកទិន្នន័យ...</option></select>
+            <label>មុខវិជ្ជា (Subject):</label>
+            <select id="subjectSelect"><option value="">កំពុងទាញយក...</option></select>
           </div>
-          <div><label>ឈ្មោះគ្រូ:</label><input type="text" id="teacherInput" placeholder="ឧ. ទឿន ដាលី"></div>
+          <div>
+            <label>ខែ (Month):</label>
+            <select id="periodSelect"><option value="">កំពុងទាញយក...</option></select>
+          </div>
         </div>
-
+        
         <button id="submitBtn">បញ្ចូលពិន្ទុ</button>
         <div id="message"></div>
 
         <div class="export-section">
-          <label>ទាញយកពិន្ទុជា Excel:</label>
-          <!-- MODIFIED: Added period select for export -->
+          <label style="color: #28a745; margin-bottom: 10px;">ទាញយកពិន្ទុជា Excel (Export):</label>
           <div class="row">
             <div>
-              <label>ថ្នាក់:</label>
-              <select id="exportClassSelect"><option value="">កំពុងទាញយកទិន្នន័យ...</option></select>
+              <label>កម្រិតថ្នាក់:</label>
+              <select id="exportGradeSelect">
+                <option value="">កំពុងទាញយក...</option>
+              </select>
             </div>
             <div>
-              <label>ជ្រើសរើសខែ:</label>
-              <select id="exportPeriodSelect"><option value="">កំពុងទាញយកទិន្នន័យ...</option></select>
+              <label id="exportSubLabel">ថ្នាក់:</label>
+              <select id="exportSubSelect">
+                <option value="">សូមជ្រើសរើសកម្រិតថ្នាក់មុន</option>
+              </select>
             </div>
           </div>
-          <button id="exportBtn" style="width:100%; margin-top: 10px;">ទាញយក Excel</button>
+          <div class="row" style="margin-top: 10px;">
+             <div>
+               <label>ខែ:</label>
+               <select id="exportPeriodSelect"><option value="">កំពុងទាញយក...</option></select>
+             </div>
+          </div>
+          <button id="exportBtn" class="export-btn">ទាញយក Excel</button>
         </div>
-      </div>
-      
-      <!-- New error panel with a retry button -->
-      <div id="error-panel" style="display: none; text-align: center; padding: 20px; background-color: #ffebee; border: 1px solid #f44336; border-radius: 5px;">
-        <p style="color: #d32f2f; font-weight: bold; font-size: 18px;">ទាញយកទិន្នន័យមិនត្រឹមត្រូវ</p>
-        <p style="color: #555; margin: 10px 0 15px 0;">សូមពិនិត្យការតភ្ជាប់អ៊ីនធឺណិតរបស់អ្នក រួចព្យាយាមម្តងទៀត។</p>
-        <button id="retryBtn" style="background-color: #007BFF; color: white; width: auto; padding: 10px 20px; margin-top: 0;">ព្យាយាមម្តងទៀត</button>
       </div>
 
     </div>
 
     <div class="table-panel">
-      <table>
-        <thead>
-          <tr><th>ល.រ</th><th>ឈ្មោះសិស្ស</th><th>ភេទ</th><th>ថ្នាក់</th><th>ពិន្ទុ</th></tr>
-        </thead>
-        <tbody id="studentTableBody"></tbody>
-      </table>
+      <!-- Scrollable Container -->
+      <div class="table-scroll-area">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 50px;">ល.រ</th>
+              <th>ឈ្មោះសិស្ស</th>
+              <th style="width: 60px;">ភេទ</th>
+              <th style="width: 80px;">ថ្នាក់</th>
+              <th style="width: 100px;">ពិន្ទុ</th>
+            </tr>
+          </thead>
+          <tbody id="studentTableBody">
+            <tr><td colspan="5" style="color:#666; padding: 20px;">សូមជ្រើសរើសទិន្នន័យនៅខាងឆ្វេង</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxcwGOHAxLBT8PBZIcXEOkoj4SlFomGDqw19wqn-WB_e0IuAWDFW9KePY2IDJLzgf9Usw/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbypNABJ-eaHd5B9zi7nQUYzpa5cH7RQ4ESs5oga4fvN3OhFQ845dyO7tTmb6WNTG6oY/exec';
+    
+    let currentMode = 'class'; // 'class' or 'room'
     let students = [];
+    
+    // Data Storage for dropdowns
+    let listData = { 
+        grades: [],
+        classes: [], 
+        rooms: [], 
+        subjects: [], 
+        periods: [] 
+    }; 
 
     const mainFormContent = document.getElementById('main-form-content');
     const errorPanel = document.getElementById('error-panel');
     const retryBtn = document.getElementById('retryBtn');
 
-    // Helper function to show a temporary message
+    // --- HELPER FUNCTIONS ---
     function showMessage(text, isSuccess) {
       const messageDiv = document.getElementById("message");
       messageDiv.innerText = text;
-      messageDiv.style.color = isSuccess ? 'green' : 'red';
+      messageDiv.style.color = isSuccess ? '#28a745' : '#dc3545';
       setTimeout(() => messageDiv.innerText = "", 5000);
     }
 
-    // Helper function to handle fetch errors and JSON parsing
-    async function fetchJson(url, options) {
-      let response;
-      try {
-        response = await fetch(url, options);
-      } catch (networkError) {
-        console.error("Network error:", networkError);
-        throw new Error(`Network request failed: ${networkError.message}`);
+    async function fetchJson(action, params = {}) {
+      const url = new URL(SCRIPT_URL);
+      url.searchParams.append('action', action);
+      for (const key in params) {
+        url.searchParams.append(key, params[key]);
       }
-
-      if (!response.ok) {
-        console.error("Network response was not OK:", response.status, response.statusText);
-        throw new Error(`Server error: ${response.status} ${response.statusText}`);
-      }
-
-      const text = await response.text();
+      
       try {
-        const data = JSON.parse(text);
-        if (data.error) {
-          throw new Error(data.error);
-        }
-        return data;
-      } catch (parseError) {
-        console.error("Failed to parse JSON response:", parseError);
-        console.log("Raw response from server:", text);
-        throw new Error("Invalid response from server. Check console.");
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`Server Error: ${res.status}`);
+        return await res.json();
+      } catch (error) {
+        throw new Error("Network error. Please check connection.");
       }
     }
 
+    // --- UI LOGIC ---
+    function setMode(mode) {
+      currentMode = mode;
+      
+      const labelText = mode === 'class' ? 'ថ្នាក់ (Class):' : 'លេខបន្ទប់ (Room):';
+      document.getElementById('subSelectLabel').innerText = labelText;
+      document.getElementById('exportSubLabel').innerText = labelText;
+
+      triggerGradeChange('gradeSelect', 'subSelect');
+      triggerGradeChange('exportGradeSelect', 'exportSubSelect');
+      
+      document.getElementById('studentTableBody').innerHTML = '<tr><td colspan="5" style="padding:20px;">សូមជ្រើសរើសទិន្នន័យម្តងទៀត</td></tr>';
+    }
+
+    // --- DATA LOADING ---
     async function loadDropdowns() {
       mainFormContent.style.display = 'block';
       errorPanel.style.display = 'none';
-      
-      // Set all dropdowns to loading state
-      const loadingOption = '<option value="">កំពុងទាញយកទិន្នន័យ...</option>';
-      document.getElementById('classSelect').innerHTML = loadingOption;
-      document.getElementById('subjectSelect').innerHTML = loadingOption;
-      document.getElementById('periodSelect').innerHTML = loadingOption; // New
-      document.getElementById('exportClassSelect').innerHTML = loadingOption;
-      document.getElementById('exportPeriodSelect').innerHTML = loadingOption; // New
 
       try {
-        // Fetch all dropdown data in parallel
-        const [classes, subjects, periods] = await Promise.all([
-          fetchJson(`${SCRIPT_URL}?action=getClassList`),
-          fetchJson(`${SCRIPT_URL}?action=getSubjectList`),
-          fetchJson(`${SCRIPT_URL}?action=getPeriodList`) // New
-        ]);
+        const data = await fetchJson('getDropdownData');
+        
+        listData.grades = data.grades || [];
+        listData.classes = data.classes || [];
+        listData.rooms = data.rooms || [];
+        listData.subjects = data.subjects || [];
+        listData.periods = data.periods || [];
 
-        // Populate Class dropdowns
-        const classSelect = document.getElementById("classSelect");
-        const exportClassSelect = document.getElementById("exportClassSelect");
-        classSelect.innerHTML = '<option value="">ជ្រើសរើសថ្នាក់</option>';
-        exportClassSelect.innerHTML = '<option value="">ជ្រើសរើសថ្នាក់</option>';
-        if (Array.isArray(classes)) {
-          classes.forEach(cls => {
-            classSelect.innerHTML += `<option value="${cls}">${cls}</option>`;
-            exportClassSelect.innerHTML += `<option value="${cls}">${cls}</option>`;
-          });
-        }
+        populateSelect('gradeSelect', listData.grades, 'ជ្រើសរើស');
+        populateSelect('exportGradeSelect', listData.grades, 'ជ្រើសរើស');
+        populateSelect('subjectSelect', listData.subjects, 'ជ្រើសរើសមុខវិជ្ជា');
+        populatePeriodSelect('periodSelect', listData.periods);
+        populatePeriodSelect('exportPeriodSelect', listData.periods);
 
-        // Populate Subject dropdown
-        const subjectSelect = document.getElementById("subjectSelect");
-        subjectSelect.innerHTML = '<option value="">ជ្រើសរើសមុខវិជ្ជា</option>';
-        if (Array.isArray(subjects)) {
-          subjects.forEach(sub => {
-            subjectSelect.innerHTML += `<option value="${sub}">${sub}</option>`;
-          });
-        }
-
-        // NEW: Populate Period dropdowns
-        const periodSelect = document.getElementById("periodSelect");
-        const exportPeriodSelect = document.getElementById("exportPeriodSelect");
-        periodSelect.innerHTML = '<option value="">ជ្រើសរើសខែ</option>';
-        exportPeriodSelect.innerHTML = '<option value="">ជ្រើសរើសខែ</option>';
-        if (Array.isArray(periods)) {
-          periods.forEach(period => {
-            // period is {name: "វិច្ឆកា", value: "Nov2025"}
-            periodSelect.innerHTML += `<option value="${period.value}">${period.name}</option>`;
-            exportPeriodSelect.innerHTML += `<option value="${period.value}">${period.name}</option>`;
-          });
-        }
+        document.getElementById('subSelect').innerHTML = '<option value="">សូមជ្រើសរើសកម្រិតថ្នាក់មុន</option>';
+        document.getElementById('exportSubSelect').innerHTML = '<option value="">សូមជ្រើសរើសកម្រិតថ្នាក់មុន</option>';
 
       } catch (error) {
-        console.error("Error loading dropdowns:", error);
+        console.error(error);
         mainFormContent.style.display = 'none';
         errorPanel.style.display = 'block';
       }
     }
 
-    async function loadStudents() {
-      const selectedClass = document.getElementById("classSelect").value;
-      const tableBody = document.getElementById("studentTableBody");
-      if (!selectedClass) {
-        tableBody.innerHTML = "";
-        students = []; // Clear student array
-        return;
+    // --- FILTER LOGIC ---
+    function filterItems(grade, type) {
+      const sourceList = type === 'class' ? listData.classes : listData.rooms;
+      if (!sourceList) return [];
+      if (!grade) return [];
+
+      if (type === 'class') {
+          const khmerNum = grade.replace('7','៧').replace('8','៨').replace('9','៩').replace('10','១០').replace('11','១១').replace('12','១២');
+          return sourceList.filter(item => 
+              String(item).includes(grade) || String(item).includes(khmerNum)
+          );
+      } else {
+          return sourceList
+            .filter(item => String(item.grade) === String(grade))
+            .map(item => item.room);
       }
-      tableBody.innerHTML = '<tr><td colspan="5">កំពុងទាញយកទិន្នន័យសិស្ស...</td></tr>';
+    }
+
+    function triggerGradeChange(gradeId, targetId) {
+      const grade = document.getElementById(gradeId).value;
+      const target = document.getElementById(targetId);
+      target.innerHTML = '<option value="">ជ្រើសរើស...</option>';
+
+      if (!grade) {
+          target.innerHTML = '<option value="">សូមជ្រើសរើសកម្រិតថ្នាក់</option>';
+          return;
+      }
+
+      const items = filterItems(grade, currentMode);
+      
+      if (items.length === 0) {
+        if(currentMode === 'class' && listData.classes.length > 0) {
+           listData.classes.forEach(item => target.innerHTML += `<option value="${item}">${item}</option>`);
+        } else {
+           target.innerHTML = '<option value="">គ្មានទិន្នន័យ (No Data)</option>';
+        }
+      } else {
+        items.forEach(item => {
+          target.innerHTML += `<option value="${item}">${item}</option>`;
+        });
+      }
+    }
+
+    // --- LOAD STUDENTS ---
+    async function loadStudents() {
+      const grade = document.getElementById('gradeSelect').value;
+      const subValue = document.getElementById('subSelect').value;
+      
+      if (!grade || !subValue) return;
+
+      const tbody = document.getElementById('studentTableBody');
+      tbody.innerHTML = '<tr><td colspan="5" style="padding:20px;">កំពុងទាញយក...</td></tr>';
+
       try {
-        // This gets the master list of students for the class
-        students = await fetchJson(`${SCRIPT_URL}?action=getStudentsByClass&class=${selectedClass}`);
+        const params = {
+            mode: currentMode,
+            grade: grade,
+            value: subValue
+        };
+        students = await fetchJson('getStudents', params);
+        
+        const collator = new Intl.Collator('km', { numeric: true, sensitivity: 'base' });
+        students.sort((a, b) => collator.compare(a.name, b.name));
+
         renderTable();
-      } catch (error) {
-        console.error("Error loading students:", error);
-        tableBody.innerHTML = `<tr><td colspan="5" style="color:red;">${error.message}</td></tr>`;
+      } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="5" style="color:red; padding:20px;">មានបញ្ហាក្នុងការទាញយក</td></tr>';
       }
     }
 
     function renderTable() {
-      const tableBody = document.getElementById("studentTableBody");
-      let html = "";
+      const tbody = document.getElementById('studentTableBody');
       if (students.length === 0) {
-        html = '<tr><td colspan="5">មិនមានទិន្នន័យសិស្សក្នុងថ្នាក់នេះទេ។</td></tr>';
-      } else {
-        students.forEach((student, index) => {
-          html += `
-            <tr>
-              <td>${index + 1}</td>
-              <td style="text-align: left; padding-left: 10px;">${student.name}</td>
-              <td>${student.gender}</td>
-              <td>${student.class}</td>
-              <td><input type="number" class="score-input" data-row="${student.rowIndex}" style="width:60px;"></td>
-            </tr>`;
-        });
+        tbody.innerHTML = '<tr><td colspan="5" style="padding:20px;">មិនមានសិស្សទេ</td></tr>';
+        return;
       }
-      tableBody.innerHTML = html;
-    }
-
-    function handleTableKeydown(e) {
-      if (!e.target.classList.contains('score-input')) return;
-      if (e.key === "Enter" || e.key === "Tab") {
-        e.preventDefault();
-        const inputs = [...document.querySelectorAll(".score-input")];
-        const idx = inputs.indexOf(e.target);
-        if (idx < inputs.length - 1) {
-          inputs[idx + 1].focus();
-        } else if (e.key === "Enter") {
-          document.getElementById("submitBtn").focus();
-        }
-      }
-    }
-
-    function handleTablePaste(e) {
-      if (!e.target.classList.contains('score-input')) return;
-      e.preventDefault();
-      const pastedData = (e.clipboardData || window.clipboardData).getData('text');
-      if (!pastedData) return;
-
-      const scores = pastedData.trim().split(/\r?\n/);
-      const allInputs = [...document.querySelectorAll(".score-input")];
-      const startIndex = allInputs.indexOf(e.target);
-
-      scores.forEach((score, index) => {
-        const targetIndex = startIndex + index;
-        if (targetIndex < allInputs.length && score.trim() !== "") {
-          allInputs[targetIndex].value = score.trim();
-        }
+      let html = '';
+      students.forEach((s, i) => {
+        html += `
+          <tr>
+            <td>${i+1}</td>
+            <td style="text-align:left; padding-left:10px; font-weight:bold;">${s.name}</td>
+            <td>${s.gender}</td>
+            <td style="font-size:12px; color:#666;">${s.class}</td>
+            <td>
+              <input type="number" class="score-input" data-id="${s.id}" data-row="${s.rowIndex}" placeholder="0" onwheel="this.blur()">
+            </td>
+          </tr>
+        `;
       });
-      
-      const nextFocusIndex = startIndex + scores.length;
-      if (nextFocusIndex < allInputs.length) {
-          allInputs[nextFocusIndex].focus();
-      } else if (allInputs.length > 0) {
-          allInputs[allInputs.length - 1].focus();
-      }
+      tbody.innerHTML = html;
     }
 
+    // --- SUBMIT ---
     async function submitScores() {
-      const teacher = document.getElementById("teacherInput").value.trim();
-      const period = document.getElementById("periodSelect").value; // MODIFIED
-      const subject = document.getElementById("subjectSelect").value;
-      const classVal = document.getElementById("classSelect").value;
+      const btn = document.getElementById('submitBtn');
+      const subject = document.getElementById('subjectSelect').value;
+      const period = document.getElementById('periodSelect').value;
       
-      if (!teacher || !period || !subject || !classVal) {
-        alert("សូមបំពេញព័ត៌មានទាំងអស់ (គ្រូ, ខែ, មុខវិជ្ជា, ថ្នាក់)");
+      if (!subject || !period || students.length === 0) {
+        alert("សូមបំពេញ មុខវិជ្ជា និង ខែ");
         return;
       }
 
       const scores = [];
-      document.querySelectorAll(".score-input").forEach(input => {
+      document.querySelectorAll('.score-input').forEach(input => {
         if (input.value.trim() !== "") {
-          scores.push({ rowIndex: parseInt(input.dataset.row), score: input.value.trim() });
+          scores.push({ 
+              id: input.dataset.id, 
+              rowIndex: parseInt(input.dataset.row), 
+              score: input.value.trim() 
+          });
         }
       });
-      
-      if(scores.length === 0) {
-        alert("សូមបញ្ចូលពិន្ទុយ៉ាងតិចមួយ។");
+
+      if (scores.length === 0) {
+        alert("សូមបញ្ចូលពិន្ទុយ៉ាងតិច ១នាក់");
         return;
       }
 
-      const submitBtn = document.getElementById("submitBtn");
-      submitBtn.disabled = true;
-      submitBtn.textContent = "កំពុងរក្សាទុក...";
+      const originalText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = "កំពុងរក្សាទុក...";
 
       try {
-        // MODIFIED: Send 'period' instead of 'month'
-        const payload = { teacher, period, subject, scores };
-        const result = await fetchJson(SCRIPT_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'submitScores', payload }),
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' } // Keep as text/plain if GAS requires
-        });
+        const payload = {
+            action: 'submitScores',
+            payload: {
+                subject: subject,
+                period: period,
+                scores: scores
+            }
+        };
         
-        showMessage(result.message, result.status === 'success');
+        const res = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+
         if(result.status === 'success') {
-          // Clear scores after successful submission
-          document.querySelectorAll(".score-input").forEach(input => input.value = "");
+            showMessage(result.message || "ជោគជ័យ!", true);
+            document.querySelectorAll('.score-input').forEach(i => i.value = ""); 
+        } else {
+             throw new Error(result.message);
+        }
+      } catch (e) {
+        showMessage("បរាជ័យ! " + e.message, false);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
+      }
+    }
+
+    // --- EXPORT ---
+    function exportExcel() {
+        const grade = document.getElementById('exportGradeSelect').value;
+        const subValue = document.getElementById('exportSubSelect').value;
+        const period = document.getElementById('exportPeriodSelect').value;
+
+        if(!grade || !subValue || !period) {
+            alert("សូមជ្រើសរើសទិន្នន័យឱ្យគ្រប់");
+            return;
         }
 
-      } catch (error) {
-        console.error("Error submitting scores:", error);
-        showMessage(`មានបញ្ហា៖ ${error.message}`, false);
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = "បញ្ចូលពិន្ទុ";
-      }
+        const exportBtn = document.getElementById("exportBtn");
+        exportBtn.disabled = true;
+        exportBtn.textContent = "កំពុងដំណើរការ...";
+
+        const params = new URLSearchParams({
+            action: 'exportExcel',
+            mode: currentMode,
+            grade: grade,
+            period: period
+        });
+        
+        if (currentMode === 'class') {
+            params.append('class', subValue);
+        } else {
+            params.append('room', subValue);
+        }
+
+        window.open(`${SCRIPT_URL}?${params.toString()}`, '_blank');
+        
+        setTimeout(() => {
+            exportBtn.disabled = false;
+            exportBtn.textContent = "ទាញយក Excel";
+        }, 3000);
     }
 
-    function exportExcel() {
-      // MODIFIED: Get both class and period
-      const exportClass = document.getElementById("exportClassSelect").value;
-      const exportPeriod = document.getElementById("exportPeriodSelect").value;
-
-      if (!exportClass || !exportPeriod) {
-        alert("សូមជ្រើសរើសថ្នាក់ និង ខែ សម្រាប់ទាញយក");
-        return;
-      }
-      
-      const exportBtn = document.getElementById("exportBtn");
-      exportBtn.disabled = true;
-      exportBtn.textContent = "កំពុងទាញយក...";
-
-      // MODIFIED: Add period to the export URL
-      const exportUrl = `${SCRIPT_URL}?action=exportClassToExcel&class=${encodeURIComponent(exportClass)}&period=${encodeURIComponent(exportPeriod)}`;
-      
-      window.open(exportUrl, '_blank');
-      
-      setTimeout(() => {
-        exportBtn.disabled = false;
-        exportBtn.textContent = "ទាញយក Excel";
-      }, 3000);
+    // --- HELPERS ---
+    function populateSelect(id, list, placeholder) {
+      const el = document.getElementById(id);
+      el.innerHTML = placeholder ? `<option value="">${placeholder}</option>` : '';
+      if(list) list.forEach(i => {
+           const val = typeof i === 'object' ? i.value : i;
+           const txt = typeof i === 'object' ? i.name : i;
+           el.innerHTML += `<option value="${val}">${txt}</option>`
+      });
     }
-
-    // --- Event Listeners ---
-    document.getElementById("classSelect").addEventListener("change", loadStudents);
-    document.getElementById("submitBtn").addEventListener("click", submitScores);
-    document.getElementById("exportBtn").addEventListener("click", exportExcel);
-    retryBtn.addEventListener('click', loadDropdowns);
     
-    document.getElementById("studentTableBody").addEventListener("keydown", handleTableKeydown);
-    document.getElementById("studentTableBody").addEventListener("paste", handleTablePaste);
+    function populatePeriodSelect(id, data) {
+      const el = document.getElementById(id);
+      el.innerHTML = `<option value="">ជ្រើសរើសខែ</option>`;
+      if (Array.isArray(data)) {
+        data.forEach(p => el.innerHTML += `<option value="${p.value}">${p.name}</option>`);
+      }
+    }
+
+    // --- EVENTS ---
+    document.getElementById('gradeSelect').addEventListener('change', () => triggerGradeChange('gradeSelect', 'subSelect'));
+    document.getElementById('exportGradeSelect').addEventListener('change', () => triggerGradeChange('exportGradeSelect', 'exportSubSelect'));
+    document.getElementById('subSelect').addEventListener('change', loadStudents);
+    document.getElementById('submitBtn').addEventListener('click', submitScores);
+    document.getElementById('exportBtn').addEventListener('click', exportExcel);
+    retryBtn.addEventListener('click', loadDropdowns);
+
+    // Keyboard Navigation
+    document.getElementById('studentTableBody').addEventListener('keydown', (e) => {
+        if (!e.target.classList.contains('score-input')) return;
+        
+        if(e.key === 'Enter' || e.key === 'Tab') {
+            e.preventDefault();
+            const inputs = [...document.querySelectorAll('.score-input')];
+            const idx = inputs.indexOf(e.target);
+            if(idx < inputs.length - 1) inputs[idx+1].focus();
+            else if(e.key === 'Enter') document.getElementById('submitBtn').focus();
+        } else if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            const inputs = [...document.querySelectorAll('.score-input')];
+            const idx = inputs.indexOf(e.target);
+            if(idx < inputs.length - 1) inputs[idx+1].focus();
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            const inputs = [...document.querySelectorAll('.score-input')];
+            const idx = inputs.indexOf(e.target);
+            if(idx > 0) inputs[idx-1].focus();
+        }
+    });
+
+    // Paste Support
+    document.getElementById('studentTableBody').addEventListener('paste', (e) => {
+        if (!e.target.classList.contains('score-input')) return;
+        e.preventDefault();
+        const pastedData = (e.clipboardData || window.clipboardData).getData('text');
+        if (!pastedData) return;
+
+        const scores = pastedData.trim().split(/\r?\n/);
+        const allInputs = [...document.querySelectorAll(".score-input")];
+        const startIndex = allInputs.indexOf(e.target);
+
+        scores.forEach((score, index) => {
+            const targetIndex = startIndex + index;
+            if (targetIndex < allInputs.length && score.trim() !== "") {
+                allInputs[targetIndex].value = score.trim();
+            }
+        });
+        
+        const nextFocusIndex = startIndex + scores.length;
+        if (nextFocusIndex < allInputs.length) {
+            allInputs[nextFocusIndex].focus();
+        }
+    });
 
     window.onload = loadDropdowns;
 
-    // --- Service Worker ---
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js').then(registration => {
-          console.log('ServiceWorker registration successful with scope: ', registration.scope);
-        }, err => {
-          console.log('ServiceWorker registration failed: ', err);
-        });
+        navigator.serviceWorker.register('/service-worker.js').catch(err => console.log('SW Fail:', err));
       });
     }
   </script>

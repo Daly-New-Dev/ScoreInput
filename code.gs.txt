@@ -1,0 +1,155 @@
+// --- CONFIGURATION ---
+const SPREADSHEET_ID = '1dJOb56GjrlGXtOwhydrsko2qM9fSCBfjQ-OE1rxTbp0'; 
+const SHEET_NAME = 'Scores'; // Master student list
+
+// --- SERVE HTML ---
+function doGet(e) {
+  const action = e.parameter.action;
+  
+  if (!action) {
+    return HtmlService.createHtmlOutputFromFile('index')
+      .setTitle('Student Grading System')
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
+      .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+  }
+
+  // --- API HANDLERS ---
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(SHEET_NAME);
+  if(!sheet) return ContentService.createTextOutput(JSON.stringify({error: "Sheet not found"}));
+
+  // 1. Get Dropdown Data
+  if (action == 'getDropdownData') {
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0];
+    
+    const subjects = headers.slice(6); // Col G+
+    const classes = [...new Set(data.slice(1).map(r => r[3]).filter(String))].sort(); // Col D
+    const grades = [...new Set(data.slice(1).map(r => r[4]).filter(String))].sort((a,b)=>a-b); // Col E
+    
+    // UPDATED: Get Rooms with their Grade Mapping
+    // We create a unique list of objects: {grade: "7", room: "1"}
+    const rawRooms = data.slice(1).map(r => ({grade: r[4], room: r[5]})); // Col E=Grade, F=Room
+    const uniqueRooms = [];
+    const seenRooms = new Set();
+    
+    rawRooms.forEach(item => {
+      const g = String(item.grade).trim();
+      const r = String(item.room).trim();
+      if(g && r) {
+        const key = g + "_" + r; // Unique key combination
+        if(!seenRooms.has(key)) {
+          seenRooms.add(key);
+          uniqueRooms.push({grade: g, room: r});
+        }
+      }
+    });
+    // Sort by room number
+    uniqueRooms.sort((a,b) => a.room.localeCompare(b.room, undefined, {numeric: true}));
+
+    // Period List
+    const periodSheet = ss.getSheetByName('Periods');
+    let periods = [];
+    if (periodSheet) {
+      const pData = periodSheet.getDataRange().getValues();
+      periods = pData.slice(1)
+        .filter(r => r[0] && r[1]) 
+        .map(r => ({ name: r[0], value: r[1], order: r[2] }))
+        .sort((a, b) => a.order - b.order) 
+        .map(p => ({name: p.name, value: p.value})); 
+    }
+
+    return ContentService.createTextOutput(JSON.stringify({
+      subjects: subjects,
+      classes: classes,
+      grades: grades,
+      rooms: uniqueRooms, // Returns objects now: [{grade: "7", room: "1"}, ...]
+      periods: periods
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // 2. Get Students (Filtered & Sorted A-Z)
+  if (action == 'getStudents') {
+    const mode = e.parameter.mode;   // 'class' or 'room'
+    const grade = e.parameter.grade; // e.g., "7"
+    const value = e.parameter.value; // e.g., "7A" or "1"
+    
+    const data = sheet.getDataRange().getValues();
+    let students = [];
+    
+    // Skip Header row (slice(1))
+    data.slice(1).forEach((row, index) => {
+      const rowGrade = String(row[4]); // Col E - Grade
+      const rowClass = String(row[3]); // Col D - Class
+      const rowRoom  = String(row[5]); // Col F - Room
+      
+      let match = false;
+      
+      if (mode == 'class') {
+        // Match Class Name
+        if (rowClass == value) match = true;
+      } else if (mode == 'room') {
+         // Match Grade AND Room Number
+         if (rowGrade == grade && rowRoom == value) match = true;
+      }
+
+      if (match) {
+        students.push({
+          id: row[0],         // Col A
+          name: row[1],       // Col B
+          gender: row[2],     // Col C
+          class: row[3],      // Col D
+          rowIndex: index + 2 // Preserve Original Row Index (1-based + header)
+        });
+      }
+    });
+
+    // SORT A-Z (Khmer Sort)
+    students.sort((a, b) => a.name.localeCompare(b.name, 'km'));
+
+    return ContentService.createTextOutput(JSON.stringify(students))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+  
+  // 3. Export Excel
+  if (action == 'exportExcel') {
+      const mode = e.parameter.mode;
+      const period = e.parameter.period;
+      return HtmlService.createHtmlOutput(`<h3>Exporting for ${mode} - ${period}... (Feature Pending Logic)</h3>`);
+  }
+}
+
+// --- POST HANDLER (Submit Scores) ---
+function doPost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents);
+    const action = data.action;
+    const payload = data.payload;
+
+    if (action == 'submitScores') {
+      const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+      let periodSheet = ss.getSheetByName(payload.period);
+      
+      if (!periodSheet) {
+          return ContentService.createTextOutput(JSON.stringify({status: 'error', message: 'Period Sheet not found'}));
+      }
+
+      const headers = periodSheet.getRange(1, 1, 1, periodSheet.getLastColumn()).getValues()[0];
+      const colIndex = headers.indexOf(payload.subject);
+      
+      if (colIndex === -1) {
+         return ContentService.createTextOutput(JSON.stringify({status: 'error', message: 'Subject not found in header'}));
+      }
+
+      payload.scores.forEach(item => {
+        if(item.rowIndex <= periodSheet.getMaxRows()) {
+            periodSheet.getRange(item.rowIndex, colIndex + 1).setValue(item.score);
+        }
+      });
+
+      return ContentService.createTextOutput(JSON.stringify({status: 'success', message: 'Saved Successfully'}));
+    }
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({status: 'error', message: error.toString()}));
+  }
+}
