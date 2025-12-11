@@ -13,13 +13,13 @@ function doGet(e) {
       .addMetaTag('viewport', 'width=device-width, initial-scale=1');
   }
 
-  // --- API HANDLERS ---
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  const sheet = ss.getSheetByName(SHEET_NAME);
-  if(!sheet) return ContentService.createTextOutput(JSON.stringify({error: "Sheet not found"}));
 
-  // 1. Get Dropdown Data
+  // --- 1. Get Dropdown Data ---
   if (action == 'getDropdownData') {
+    const sheet = ss.getSheetByName(SHEET_NAME);
+    if(!sheet) return ContentService.createTextOutput(JSON.stringify({error: "Sheet not found"}));
+
     const data = sheet.getDataRange().getValues();
     const headers = data[0];
     
@@ -27,9 +27,8 @@ function doGet(e) {
     const classes = [...new Set(data.slice(1).map(r => r[3]).filter(String))].sort(); // Col D
     const grades = [...new Set(data.slice(1).map(r => r[4]).filter(String))].sort((a,b)=>a-b); // Col E
     
-    // UPDATED: Get Rooms with their Grade Mapping
-    // We create a unique list of objects: {grade: "7", room: "1"}
-    const rawRooms = data.slice(1).map(r => ({grade: r[4], room: r[5]})); // Col E=Grade, F=Room
+    // Get Rooms with Grade Mapping
+    const rawRooms = data.slice(1).map(r => ({grade: r[4], room: r[5]})); 
     const uniqueRooms = [];
     const seenRooms = new Set();
     
@@ -37,17 +36,16 @@ function doGet(e) {
       const g = String(item.grade).trim();
       const r = String(item.room).trim();
       if(g && r) {
-        const key = g + "_" + r; // Unique key combination
+        const key = g + "_" + r;
         if(!seenRooms.has(key)) {
           seenRooms.add(key);
           uniqueRooms.push({grade: g, room: r});
         }
       }
     });
-    // Sort by room number
     uniqueRooms.sort((a,b) => a.room.localeCompare(b.room, undefined, {numeric: true}));
 
-    // Period List
+    // Period List from 'Periods' Sheet
     const periodSheet = ss.getSheetByName('Periods');
     let periods = [];
     if (periodSheet) {
@@ -63,59 +61,134 @@ function doGet(e) {
       subjects: subjects,
       classes: classes,
       grades: grades,
-      rooms: uniqueRooms, // Returns objects now: [{grade: "7", room: "1"}, ...]
+      rooms: uniqueRooms,
       periods: periods
     })).setMimeType(ContentService.MimeType.JSON);
   }
 
-  // 2. Get Students (Filtered & Sorted A-Z)
+  // --- 2. Get Students ---
   if (action == 'getStudents') {
-    const mode = e.parameter.mode;   // 'class' or 'room'
-    const grade = e.parameter.grade; // e.g., "7"
-    const value = e.parameter.value; // e.g., "7A" or "1"
+    const sheet = ss.getSheetByName(SHEET_NAME);
+    const mode = e.parameter.mode;
+    const grade = e.parameter.grade;
+    const value = e.parameter.value;
     
     const data = sheet.getDataRange().getValues();
     let students = [];
     
-    // Skip Header row (slice(1))
     data.slice(1).forEach((row, index) => {
-      const rowGrade = String(row[4]); // Col E - Grade
-      const rowClass = String(row[3]); // Col D - Class
-      const rowRoom  = String(row[5]); // Col F - Room
+      const rowGrade = String(row[4]); 
+      const rowClass = String(row[3]); 
+      const rowRoom  = String(row[5]); 
       
       let match = false;
-      
       if (mode == 'class') {
-        // Match Class Name
         if (rowClass == value) match = true;
       } else if (mode == 'room') {
-         // Match Grade AND Room Number
          if (rowGrade == grade && rowRoom == value) match = true;
       }
 
       if (match) {
         students.push({
-          id: row[0],         // Col A
-          name: row[1],       // Col B
-          gender: row[2],     // Col C
-          class: row[3],      // Col D
-          rowIndex: index + 2 // Preserve Original Row Index (1-based + header)
+          id: row[0],         
+          name: row[1],       
+          gender: row[2],     
+          class: row[3],      
+          rowIndex: index + 2 
         });
       }
     });
 
-    // SORT A-Z (Khmer Sort)
     students.sort((a, b) => a.name.localeCompare(b.name, 'km'));
 
     return ContentService.createTextOutput(JSON.stringify(students))
       .setMimeType(ContentService.MimeType.JSON);
   }
   
-  // 3. Export Excel
+  // --- 3. EXPORT EXCEL (The Logic You Requested) ---
   if (action == 'exportExcel') {
-      const mode = e.parameter.mode;
-      const period = e.parameter.period;
-      return HtmlService.createHtmlOutput(`<h3>Exporting for ${mode} - ${period}... (Feature Pending Logic)</h3>`);
+    const mode = e.parameter.mode;   // 'class' or 'room'
+    const grade = e.parameter.grade; 
+    const value = (mode === 'class') ? e.parameter.class : e.parameter.room; 
+    const period = e.parameter.period;
+
+    if (!period) return HtmlService.createHtmlOutput("<h3>Error: Period not selected.</h3>");
+
+    // 1. Get Data from the PERIOD sheet (contains scores)
+    const sourceSheet = ss.getSheetByName(period);
+    if (!sourceSheet) return HtmlService.createHtmlOutput(`<h3>Error: Sheet for "${period}" not found.</h3>`);
+
+    const data = sourceSheet.getDataRange().getValues();
+    const header = data[0];
+    
+    // 2. Filter Data based on Mode
+    let filteredRows = [];
+    
+    // Skip header (i=1)
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      const rowGrade = String(row[4]); // Col E
+      const rowClass = String(row[3]); // Col D
+      const rowRoom = String(row[5]);  // Col F
+      
+      let match = false;
+      if (mode === 'class') {
+        if (rowClass === value) match = true;
+      } else {
+        // Room Mode matches Grade AND Room
+        if (rowGrade === grade && rowRoom === value) match = true;
+      }
+      
+      if (match) {
+        filteredRows.push(row);
+      }
+    }
+
+    if (filteredRows.length === 0) {
+      return HtmlService.createHtmlOutput("<h3>No data found for this selection.</h3>");
+    }
+
+    // 3. Sort Data A-Z (Khmer Name is at Index 1 / Col B)
+    filteredRows.sort((a, b) => String(a[1]).localeCompare(String(b[1]), 'km'));
+
+    // 4. Create Temporary Spreadsheet
+    const fileName = `Export_${period}_${mode}_${value}`;
+    const tempSS = SpreadsheetApp.create(fileName);
+    const tempSheet = tempSS.getSheets()[0];
+
+    // Write Header + Data
+    const outputData = [header, ...filteredRows];
+    tempSheet.getRange(1, 1, outputData.length, outputData[0].length).setValues(outputData);
+    
+    // Basic Formatting
+    tempSheet.getRange(1, 1, 1, outputData[0].length).setFontWeight("bold").setBackground("#DDDDDD");
+    tempSheet.autoResizeColumns(1, outputData[0].length);
+
+    // 5. Generate Download URL
+    SpreadsheetApp.flush(); // Ensure data is written
+    const fileId = tempSS.getId();
+    
+    // Make file accessible so link works for anyone
+    DriveApp.getFileById(fileId).setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    
+    // Helper to delete temp files later (Optional: You can manually delete from Drive)
+    // For now, we leave it to ensure download works reliably.
+
+    const downloadUrl = `https://docs.google.com/spreadsheets/d/${fileId}/export?format=xlsx`;
+
+    // 6. Return HTML that auto-redirects to download
+    return HtmlService.createHtmlOutput(`
+      <html>
+        <body style="font-family: sans-serif; text-align: center; padding-top: 50px;">
+          <h2>Generating Excel...</h2>
+          <p>Download should start automatically.</p>
+          <p>If not, <a href="${downloadUrl}" target="_top">click here</a>.</p>
+          <script>
+            window.location.href = "${downloadUrl}";
+          </script>
+        </body>
+      </html>
+    `);
   }
 }
 

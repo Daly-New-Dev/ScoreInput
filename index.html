@@ -17,15 +17,15 @@
       margin: 0; 
       font-family: 'Khmer OS Battambang', sans-serif; 
       background: #f4f6f8; 
-      height: 100vh; /* Full viewport height */
-      overflow: hidden; /* Prevent body scroll, use internal scrolls */
+      height: 100vh;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
     }
     
     /* --- HEADER STYLES (Fixed at Top) --- */
     header {
-      flex-shrink: 0; /* Prevent header from shrinking */
+      flex-shrink: 0;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -34,7 +34,7 @@
       color: #fff;
       box-shadow: 0 4px 8px rgba(0,0,0,0.15);
       z-index: 1000;
-      height: 130px; /* Fixed height for consistency */
+      height: 130px;
       box-sizing: border-box;
     }
 
@@ -78,8 +78,8 @@
       max-width: 1400px; 
       margin: 0 auto;
       width: 100%;
-      flex-grow: 1; /* Fill remaining vertical space */
-      overflow: hidden; /* Prevent overflow outside container */
+      flex-grow: 1;
+      overflow: hidden; /* Contains panels */
       box-sizing: border-box;
     }
     
@@ -90,7 +90,7 @@
       padding: 20px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       border-radius: 8px;
-      overflow-y: auto; /* Allow form to scroll if screen is short */
+      overflow-y: auto;
       height: 100%;
       box-sizing: border-box;
     }
@@ -99,10 +99,10 @@
     .table-panel {
       width: 65%;
       background: #fff;
-      padding: 0; /* Remove padding to let header touch edges */
+      padding: 0;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       border-radius: 8px;
-      overflow: hidden; /* Contains the scrollable table area */
+      overflow: hidden;
       display: flex;
       flex-direction: column;
       height: 100%;
@@ -112,7 +112,7 @@
     /* SCROLLABLE TABLE AREA */
     .table-scroll-area {
         flex-grow: 1;
-        overflow: auto; /* Scrollbar appears here */
+        overflow: auto;
         padding: 0 10px 10px 10px;
     }
 
@@ -185,7 +185,7 @@
     /* TABLE STYLES */
     table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 600px; }
     
-    /* Compact Row Height (~20% smaller) */
+    /* Compact Row Height */
     th, td { border-bottom: 1px solid #e0e0e0; border-right: 1px solid #e0e0e0; padding: 6px 4px; text-align: center; font-size: 15px; }
     td { border-left: 1px solid #e0e0e0; }
 
@@ -194,7 +194,7 @@
       background: #007BFF; 
       color: #fff; 
       position: sticky; 
-      top: 0; /* Sticks to top of .table-scroll-area */
+      top: 0;
       z-index: 10; 
       padding-top: 12px;
       padding-bottom: 12px;
@@ -207,7 +207,7 @@
     /* Compact Input Height */
     .score-input {
       text-align: center;
-      height: 30px; /* Reduced from 35px */
+      height: 30px;
       border: 1px solid #ccc;
       font-size: 15px;
       width: 100%;
@@ -226,39 +226,85 @@
       border-radius: 8px;
     }
 
-    /* RESPONSIVE */
-    @media (max-width: 768px) {
-      body { height: auto; overflow: auto; display: block; } /* Allow body scroll on mobile */
+    /* RESPONSIVE DESIGN (Tablets & Phones) */
+    @media (max-width: 1024px) {
+      /* Reset Body to Native Scroll */
+      body { 
+        height: auto; 
+        overflow: auto; 
+        display: block; 
+      }
       
-      header { height: auto; padding: 10px; position: sticky; top: 0; } /* Sticky header on mobile */
+      /* Make Header Sticky on Mobile */
+      header { 
+        height: auto; 
+        padding: 5px 10px; /* Reduced padding */
+        position: sticky; 
+        top: 0;
+        min-height: 80px;
+      }
       
+      /* Scale Down Logos and Text */
       #school-logo { height: 50px; }
       #moeys-logo { height: 50px; }
-      header h1 { font-size: 16px; line-height: 1.3; }
-      header h2 { font-size: 12px; margin-top: 2px; }
+      header h1 { font-size: 14px; line-height: 1.3; margin-bottom: 2px; }
+      header h2 { font-size: 11px; margin-top: 0; }
       .header-text { padding: 0 5px; }
 
+      /* Stack Layout */
       .container { 
         flex-direction: column; 
-        padding: 10px; 
-        gap: 15px; 
+        padding: 5px; 
+        gap: 10px; 
         height: auto; 
+        width: 100%;
         margin-top: 0;
       }
       
-      .form-panel { width: 100%; height: auto; }
+      /* Panels take full width */
+      .form-panel { 
+        width: 100%; 
+        height: auto; 
+        overflow: visible; 
+        padding: 10px;
+      }
       
+      /* TABLE AUTO FIT */
       .table-panel { 
         width: 100%; 
         height: auto; 
-        /* Give table fixed height on mobile so header sticks properly */
-        height: 70vh; 
+        max-height: 70vh; 
       }
       
-      .row { flex-direction: column; gap: 0; }
-      .row > div { margin-bottom: 10px; }
-      .export-section .row { flex-direction: row; gap: 10px; }
-      th, td { font-size: 13px; padding: 6px 4px; }
+      table { min-width: 100%; width: 100%; }
+
+      /* Form Adjustments: Keep 2 items per row on mobile */
+      .row { flex-direction: row; gap: 8px; }
+      .row > div { margin-bottom: 0; }
+      
+      /* Smaller inputs/labels */
+      label { font-size: 13px; margin-top: 8px; margin-bottom: 2px; }
+      select, input[type=text], input[type=number] { height: 35px; font-size: 13px; padding: 5px; }
+      button { height: 35px; margin-top: 15px; font-size: 14px; }
+
+      /* Smaller table font & Padding */
+      th, td { font-size: 12px; padding: 4px 2px; }
+      
+      /* Specific Column Widths for Mobile Auto Fit */
+      th:nth-child(1) { width: 30px; } /* ID */
+      th:nth-child(3) { width: 35px; } /* Gender */
+      th:nth-child(4) { width: 40px; } /* Class */
+      th:nth-child(5) { width: 60px; } /* Score */
+      /* Name column takes remaining space */
+      
+      .score-input { height: 28px; font-size: 13px; }
+      
+      .export-section { margin-top: 15px; padding-top: 10px; }
+    }
+
+    /* Small Phone adjustments */
+    @media (max-width: 480px) {
+       .export-section .row { flex-direction: row; } /* Keep export row horizontal if fits */
     }
   </style>
 </head>
@@ -377,9 +423,9 @@
   </div>
 
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbypNABJ-eaHd5B9zi7nQUYzpa5cH7RQ4ESs5oga4fvN3OhFQ845dyO7tTmb6WNTG6oY/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby5_mnuy7iu5hM6hHfSJy0Mfd-DoTgfJCJXuKcQLPcriGAMJsDGK1hdaYxZ-bNoWkd2/exec';
     
-    let currentMode = 'class'; // 'class' or 'room'
+    let currentMode = 'class'; 
     let students = [];
     
     // Data Storage for dropdowns
@@ -680,7 +726,6 @@
     document.getElementById('exportBtn').addEventListener('click', exportExcel);
     retryBtn.addEventListener('click', loadDropdowns);
 
-    // Keyboard Navigation
     document.getElementById('studentTableBody').addEventListener('keydown', (e) => {
         if (!e.target.classList.contains('score-input')) return;
         
@@ -703,7 +748,6 @@
         }
     });
 
-    // Paste Support
     document.getElementById('studentTableBody').addEventListener('paste', (e) => {
         if (!e.target.classList.contains('score-input')) return;
         e.preventDefault();
