@@ -23,7 +23,7 @@
       flex-direction: column;
     }
     
-    /* --- HEADER STYLES (Fixed at Top) --- */
+    /* --- HEADER STYLES --- */
     header {
       flex-shrink: 0;
       display: flex;
@@ -70,7 +70,7 @@
       opacity: 0.95;
     }
 
-    /* MAIN CONTENT CONTAINER */
+    /* MAIN CONTENT */
     .container { 
       display: flex; 
       padding: 20px; 
@@ -79,11 +79,10 @@
       margin: 0 auto;
       width: 100%;
       flex-grow: 1;
-      overflow: hidden; /* Contains panels */
+      overflow: hidden;
       box-sizing: border-box;
     }
     
-    /* FORM PANEL (Left) */
     .form-panel {
       width: 35%;
       background: #fff;
@@ -95,7 +94,6 @@
       box-sizing: border-box;
     }
 
-    /* TABLE PANEL (Right) */
     .table-panel {
       width: 65%;
       background: #fff;
@@ -109,7 +107,6 @@
       box-sizing: border-box;
     }
 
-    /* SCROLLABLE TABLE AREA */
     .table-scroll-area {
         flex-grow: 1;
         overflow: auto;
@@ -120,191 +117,95 @@
     label { font-weight: 700; display: block; margin-top: 15px; margin-bottom: 5px; color: #333; }
     
     select, input[type=text], input[type=number] {
-      width: 100%;
-      padding: 10px;
-      font-size: 16px;
-      border-radius: 6px;
-      border: 1px solid #ddd;
-      box-sizing: border-box;
-      height: 45px;
-      font-family: 'Khmer OS Battambang', sans-serif;
-      transition: border-color 0.3s;
+      width: 100%; padding: 10px; font-size: 16px; border-radius: 6px;
+      border: 1px solid #ddd; box-sizing: border-box; height: 45px;
+      font-family: 'Khmer OS Battambang', sans-serif; transition: border-color 0.3s;
     }
-    
     select:focus, input:focus { border-color: #007BFF; outline: none; }
 
     .row { display: flex; gap: 15px; align-items: flex-end; }
     .row > div { flex: 1; }
 
-    /* RADIO BUTTON STYLES */
+    /* BUTTONS & RADIO */
     .radio-group {
-        display: flex;
-        gap: 20px;
-        margin-bottom: 15px;
-        background: #e9ecef;
-        padding: 10px;
-        border-radius: 6px;
+        display: flex; gap: 20px; margin-bottom: 15px; background: #e9ecef;
+        padding: 10px; border-radius: 6px;
     }
     .radio-group label {
-        margin: 0;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-weight: normal;
-        color: #333;
+        margin: 0; cursor: pointer; display: flex; align-items: center;
+        gap: 8px; font-weight: normal; color: #333;
     }
     .radio-group input[type="radio"] { width: 18px; height: 18px; margin: 0; cursor: pointer; }
 
-    /* BUTTONS */
     button {
-      background-color: #007BFF;
-      border: none;
-      color: #fff;
-      padding: 10px;
-      font-size: 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-family: 'Khmer OS Battambang', sans-serif;
-      width: 100%;
-      margin-top: 20px;
-      height: 45px;
-      box-sizing: border-box;
-      font-weight: bold;
-      transition: background 0.2s;
+      background-color: #007BFF; border: none; color: #fff; padding: 10px;
+      font-size: 16px; border-radius: 6px; cursor: pointer;
+      font-family: 'Khmer OS Battambang', sans-serif; width: 100%;
+      margin-top: 20px; height: 45px; box-sizing: border-box; font-weight: bold;
     }
-    
     button:hover { background-color: #0056b3; }
     button:disabled { background-color: #ccc; cursor: not-allowed; }
 
-    /* EXPORT SECTION */
     .export-section { margin-top: 30px; border-top: 2px dashed #eee; padding-top: 20px; }
     .export-btn { background-color: #28a745; }
     .export-btn:hover { background-color: #218838; }
 
     /* TABLE STYLES */
     table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 600px; }
-    
-    /* Compact Row Height */
     th, td { border-bottom: 1px solid #e0e0e0; border-right: 1px solid #e0e0e0; padding: 6px 4px; text-align: center; font-size: 15px; }
     td { border-left: 1px solid #e0e0e0; }
 
-    /* STICKY TABLE HEADER */
     th { 
-      background: #007BFF; 
-      color: #fff; 
-      position: sticky; 
-      top: 0;
-      z-index: 10; 
-      padding-top: 12px;
-      padding-bottom: 12px;
-      border-top: none;
+      background: #007BFF; color: #fff; position: sticky; top: 0; z-index: 10; 
+      padding-top: 12px; padding-bottom: 12px; border-top: none;
     }
-    
     tr:nth-child(even) { background-color: #f9f9f9; }
     tr:hover { background-color: #f1f1f1; }
 
-    /* Compact Input Height */
-    .score-input {
-      text-align: center;
-      height: 30px;
-      border: 1px solid #ccc;
-      font-size: 15px;
-      width: 100%;
-      box-sizing: border-box;
-    }
+    .score-input { text-align: center; height: 30px; border: 1px solid #ccc; font-size: 15px; width: 100%; box-sizing: border-box; }
     .score-input:focus { background-color: #e8f0fe; border-color: #007BFF; }
 
     #message { margin-top: 15px; font-weight: 700; min-height: 20px; text-align: center; }
-    
-    #error-panel {
-      display: none;
-      text-align: center;
-      padding: 20px;
-      background-color: #ffebee;
-      border: 1px solid #f44336;
-      border-radius: 8px;
-    }
+    #error-panel { display: none; text-align: center; padding: 20px; background-color: #ffebee; border: 1px solid #f44336; border-radius: 8px; }
 
-    /* RESPONSIVE DESIGN (Tablets & Phones) */
+    /* RESPONSIVE DESIGN */
     @media (max-width: 1024px) {
-      /* Reset Body to Native Scroll */
-      body { 
-        height: auto; 
-        overflow: auto; 
-        display: block; 
-      }
-      
-      /* Make Header Sticky on Mobile */
-      header { 
-        height: auto; 
-        padding: 5px 10px; /* Reduced padding */
-        position: sticky; 
-        top: 0;
-        min-height: 80px;
-      }
-      
-      /* Scale Down Logos and Text */
-      #school-logo { height: 50px; }
-      #moeys-logo { height: 50px; }
+      body { height: auto; overflow: auto; display: block; }
+      header { height: auto; padding: 5px 10px; position: sticky; top: 0; min-height: 80px; }
+      #school-logo, #moeys-logo { height: 50px; }
       header h1 { font-size: 14px; line-height: 1.3; margin-bottom: 2px; }
       header h2 { font-size: 11px; margin-top: 0; }
       .header-text { padding: 0 5px; }
 
-      /* Stack Layout */
-      .container { 
-        flex-direction: column; 
-        padding: 5px; 
-        gap: 10px; 
-        height: auto; 
-        width: 100%;
-        margin-top: 0;
-      }
+      .container { flex-direction: column; padding: 5px; gap: 10px; height: auto; width: 100%; margin-top: 0; }
+      .form-panel { width: 100%; height: auto; overflow: visible; padding: 10px; }
       
-      /* Panels take full width */
-      .form-panel { 
-        width: 100%; 
-        height: auto; 
-        overflow: visible; 
-        padding: 10px;
-      }
-      
-      /* TABLE AUTO FIT */
-      .table-panel { 
-        width: 100%; 
-        height: auto; 
-        max-height: 70vh; 
-      }
-      
+      .table-panel { width: 100%; height: auto; max-height: 70vh; }
       table { min-width: 100%; width: 100%; }
 
-      /* Form Adjustments: Keep 2 items per row on mobile */
       .row { flex-direction: row; gap: 8px; }
       .row > div { margin-bottom: 0; }
-      
-      /* Smaller inputs/labels */
       label { font-size: 13px; margin-top: 8px; margin-bottom: 2px; }
       select, input[type=text], input[type=number] { height: 35px; font-size: 13px; padding: 5px; }
       button { height: 35px; margin-top: 15px; font-size: 14px; }
 
-      /* Smaller table font & Padding */
       th, td { font-size: 12px; padding: 4px 2px; }
       
-      /* Specific Column Widths for Mobile Auto Fit */
-      th:nth-child(1) { width: 30px; } /* ID */
-      th:nth-child(3) { width: 35px; } /* Gender */
-      th:nth-child(4) { width: 40px; } /* Class */
-      th:nth-child(5) { width: 60px; } /* Score */
-      /* Name column takes remaining space */
+      /* Updated Column Widths for Mobile with New Columns */
+      th:nth-child(1) { width: 25px; } /* No */
+      th:nth-child(2) { width: 30px; } /* Room (New) */
+      th:nth-child(3) { width: 30px; } /* Table (New) */
+      th:nth-child(5) { width: 30px; } /* Gender */
+      th:nth-child(6) { width: 35px; } /* Class */
+      th:nth-child(7) { width: 50px; } /* Score */
+      /* Name (4th) takes remaining space */
       
       .score-input { height: 28px; font-size: 13px; }
-      
       .export-section { margin-top: 15px; padding-top: 10px; }
     }
 
-    /* Small Phone adjustments */
     @media (max-width: 480px) {
-       .export-section .row { flex-direction: row; } /* Keep export row horizontal if fits */
+       .export-section .row { flex-direction: row; }
     }
   </style>
 </head>
@@ -323,15 +224,12 @@
 
   <div class="container">
     <div class="form-panel">
-      
       <div id="error-panel">
         <p style="color: #d32f2f; font-weight: bold; font-size: 16px;">ទាញយកទិន្នន័យមិនត្រឹមត្រូវ</p>
-        <p style="color: #555; font-size: 14px; margin: 5px 0 15px 0;">សូមពិនិត្យអ៊ីនធឺណិត រួចព្យាយាមម្តងទៀត</p>
         <button id="retryBtn" style="width: auto; padding: 8px 20px; margin: 0;">ព្យាយាមម្តងទៀត</button>
       </div>
 
       <div id="main-form-content">
-        
         <label>ជ្រើសរើសរបៀបបញ្ចូល (Select Mode):</label>
         <div class="radio-group">
             <label>
@@ -347,15 +245,11 @@
         <div class="row">
           <div>
             <label>កម្រិតថ្នាក់ (Grade):</label>
-            <select id="gradeSelect">
-              <option value="">កំពុងទាញយក...</option>
-            </select>
+            <select id="gradeSelect"><option value="">កំពុងទាញយក...</option></select>
           </div>
           <div>
             <label id="subSelectLabel">ថ្នាក់ (Class):</label>
-            <select id="subSelect">
-              <option value="">សូមជ្រើសរើសកម្រិតថ្នាក់មុន</option>
-            </select>
+            <select id="subSelect"><option value="">សូមជ្រើសរើសកម្រិតថ្នាក់មុន</option></select>
           </div>
         </div>
 
@@ -378,15 +272,11 @@
           <div class="row">
             <div>
               <label>កម្រិតថ្នាក់:</label>
-              <select id="exportGradeSelect">
-                <option value="">កំពុងទាញយក...</option>
-              </select>
+              <select id="exportGradeSelect"><option value="">កំពុងទាញយក...</option></select>
             </div>
             <div>
               <label id="exportSubLabel">ថ្នាក់:</label>
-              <select id="exportSubSelect">
-                <option value="">សូមជ្រើសរើសកម្រិតថ្នាក់មុន</option>
-              </select>
+              <select id="exportSubSelect"><option value="">សូមជ្រើសរើសកម្រិតថ្នាក់មុន</option></select>
             </div>
           </div>
           <div class="row" style="margin-top: 10px;">
@@ -398,16 +288,16 @@
           <button id="exportBtn" class="export-btn">ទាញយក Excel</button>
         </div>
       </div>
-
     </div>
 
     <div class="table-panel">
-      <!-- Scrollable Container -->
       <div class="table-scroll-area">
         <table>
           <thead>
             <tr>
               <th style="width: 50px;">ល.រ</th>
+              <th style="width: 50px;">បន្ទប់</th> <!-- Col F (Room) -->
+              <th style="width: 50px;">លេខតុ</th> <!-- Col A (Table/ID) -->
               <th>ឈ្មោះសិស្ស</th>
               <th style="width: 60px;">ភេទ</th>
               <th style="width: 80px;">ថ្នាក់</th>
@@ -415,7 +305,7 @@
             </tr>
           </thead>
           <tbody id="studentTableBody">
-            <tr><td colspan="5" style="color:#666; padding: 20px;">សូមជ្រើសរើសទិន្នន័យនៅខាងឆ្វេង</td></tr>
+            <tr><td colspan="7" style="color:#666; padding: 20px;">សូមជ្រើសរើសទិន្នន័យនៅខាងឆ្វេង</td></tr>
           </tbody>
         </table>
       </div>
@@ -423,25 +313,16 @@
   </div>
 
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby5_mnuy7iu5hM6hHfSJy0Mfd-DoTgfJCJXuKcQLPcriGAMJsDGK1hdaYxZ-bNoWkd2/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyoyB4zT8Mefvcywj8N6f1Jv2X_WuTBhM4zup0A1__9w3SoS5550rsVHS-uJtbeomwf/exec';
     
     let currentMode = 'class'; 
     let students = [];
-    
-    // Data Storage for dropdowns
-    let listData = { 
-        grades: [],
-        classes: [], 
-        rooms: [], 
-        subjects: [], 
-        periods: [] 
-    }; 
+    let listData = { grades: [], classes: [], rooms: [], subjects: [], periods: [] }; 
 
     const mainFormContent = document.getElementById('main-form-content');
     const errorPanel = document.getElementById('error-panel');
     const retryBtn = document.getElementById('retryBtn');
 
-    // --- HELPER FUNCTIONS ---
     function showMessage(text, isSuccess) {
       const messageDiv = document.getElementById("message");
       messageDiv.innerText = text;
@@ -455,7 +336,6 @@
       for (const key in params) {
         url.searchParams.append(key, params[key]);
       }
-      
       try {
         const res = await fetch(url);
         if (!res.ok) throw new Error(`Server Error: ${res.status}`);
@@ -465,28 +345,21 @@
       }
     }
 
-    // --- UI LOGIC ---
     function setMode(mode) {
       currentMode = mode;
-      
       const labelText = mode === 'class' ? 'ថ្នាក់ (Class):' : 'លេខបន្ទប់ (Room):';
       document.getElementById('subSelectLabel').innerText = labelText;
       document.getElementById('exportSubLabel').innerText = labelText;
-
       triggerGradeChange('gradeSelect', 'subSelect');
       triggerGradeChange('exportGradeSelect', 'exportSubSelect');
-      
-      document.getElementById('studentTableBody').innerHTML = '<tr><td colspan="5" style="padding:20px;">សូមជ្រើសរើសទិន្នន័យម្តងទៀត</td></tr>';
+      document.getElementById('studentTableBody').innerHTML = '<tr><td colspan="7" style="padding:20px;">សូមជ្រើសរើសទិន្នន័យម្តងទៀត</td></tr>';
     }
 
-    // --- DATA LOADING ---
     async function loadDropdowns() {
       mainFormContent.style.display = 'block';
       errorPanel.style.display = 'none';
-
       try {
         const data = await fetchJson('getDropdownData');
-        
         listData.grades = data.grades || [];
         listData.classes = data.classes || [];
         listData.rooms = data.rooms || [];
@@ -501,7 +374,6 @@
 
         document.getElementById('subSelect').innerHTML = '<option value="">សូមជ្រើសរើសកម្រិតថ្នាក់មុន</option>';
         document.getElementById('exportSubSelect').innerHTML = '<option value="">សូមជ្រើសរើសកម្រិតថ្នាក់មុន</option>';
-
       } catch (error) {
         console.error(error);
         mainFormContent.style.display = 'none';
@@ -509,7 +381,6 @@
       }
     }
 
-    // --- FILTER LOGIC ---
     function filterItems(grade, type) {
       const sourceList = type === 'class' ? listData.classes : listData.rooms;
       if (!sourceList) return [];
@@ -531,14 +402,11 @@
       const grade = document.getElementById(gradeId).value;
       const target = document.getElementById(targetId);
       target.innerHTML = '<option value="">ជ្រើសរើស...</option>';
-
       if (!grade) {
           target.innerHTML = '<option value="">សូមជ្រើសរើសកម្រិតថ្នាក់</option>';
           return;
       }
-
       const items = filterItems(grade, currentMode);
-      
       if (items.length === 0) {
         if(currentMode === 'class' && listData.classes.length > 0) {
            listData.classes.forEach(item => target.innerHTML += `<option value="${item}">${item}</option>`);
@@ -546,43 +414,33 @@
            target.innerHTML = '<option value="">គ្មានទិន្នន័យ (No Data)</option>';
         }
       } else {
-        items.forEach(item => {
-          target.innerHTML += `<option value="${item}">${item}</option>`;
-        });
+        items.forEach(item => target.innerHTML += `<option value="${item}">${item}</option>`);
       }
     }
 
-    // --- LOAD STUDENTS ---
     async function loadStudents() {
       const grade = document.getElementById('gradeSelect').value;
       const subValue = document.getElementById('subSelect').value;
-      
       if (!grade || !subValue) return;
 
       const tbody = document.getElementById('studentTableBody');
-      tbody.innerHTML = '<tr><td colspan="5" style="padding:20px;">កំពុងទាញយក...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" style="padding:20px;">កំពុងទាញយក...</td></tr>';
 
       try {
-        const params = {
-            mode: currentMode,
-            grade: grade,
-            value: subValue
-        };
+        const params = { mode: currentMode, grade: grade, value: subValue };
         students = await fetchJson('getStudents', params);
-        
         const collator = new Intl.Collator('km', { numeric: true, sensitivity: 'base' });
         students.sort((a, b) => collator.compare(a.name, b.name));
-
         renderTable();
       } catch (e) {
-        tbody.innerHTML = '<tr><td colspan="5" style="color:red; padding:20px;">មានបញ្ហាក្នុងការទាញយក</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="color:red; padding:20px;">មានបញ្ហាក្នុងការទាញយក</td></tr>';
       }
     }
 
     function renderTable() {
       const tbody = document.getElementById('studentTableBody');
       if (students.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="padding:20px;">មិនមានសិស្សទេ</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="padding:20px;">មិនមានសិស្សទេ</td></tr>';
         return;
       }
       let html = '';
@@ -590,6 +448,8 @@
         html += `
           <tr>
             <td>${i+1}</td>
+            <td>${s.room || '-'}</td> <!-- Room -->
+            <td>${s.id}</td> <!-- Table/ID -->
             <td style="text-align:left; padding-left:10px; font-weight:bold;">${s.name}</td>
             <td>${s.gender}</td>
             <td style="font-size:12px; color:#666;">${s.class}</td>
@@ -602,104 +462,52 @@
       tbody.innerHTML = html;
     }
 
-    // --- SUBMIT ---
     async function submitScores() {
       const btn = document.getElementById('submitBtn');
       const subject = document.getElementById('subjectSelect').value;
       const period = document.getElementById('periodSelect').value;
-      
       if (!subject || !period || students.length === 0) {
         alert("សូមបំពេញ មុខវិជ្ជា និង ខែ");
         return;
       }
-
       const scores = [];
       document.querySelectorAll('.score-input').forEach(input => {
         if (input.value.trim() !== "") {
-          scores.push({ 
-              id: input.dataset.id, 
-              rowIndex: parseInt(input.dataset.row), 
-              score: input.value.trim() 
-          });
+          scores.push({ id: input.dataset.id, rowIndex: parseInt(input.dataset.row), score: input.value.trim() });
         }
       });
-
-      if (scores.length === 0) {
-        alert("សូមបញ្ចូលពិន្ទុយ៉ាងតិច ១នាក់");
-        return;
-      }
+      if (scores.length === 0) { alert("សូមបញ្ចូលពិន្ទុយ៉ាងតិច ១នាក់"); return; }
 
       const originalText = btn.textContent;
       btn.disabled = true;
       btn.textContent = "កំពុងរក្សាទុក...";
-
       try {
-        const payload = {
-            action: 'submitScores',
-            payload: {
-                subject: subject,
-                period: period,
-                scores: scores
-            }
-        };
-        
-        const res = await fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify(payload)
-        });
+        const payload = { action: 'submitScores', payload: { subject, period, scores } };
+        const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
         const result = await res.json();
-
         if(result.status === 'success') {
             showMessage(result.message || "ជោគជ័យ!", true);
             document.querySelectorAll('.score-input').forEach(i => i.value = ""); 
-        } else {
-             throw new Error(result.message);
-        }
-      } catch (e) {
-        showMessage("បរាជ័យ! " + e.message, false);
-      } finally {
-        btn.disabled = false;
-        btn.textContent = originalText;
-      }
+        } else { throw new Error(result.message); }
+      } catch (e) { showMessage("បរាជ័យ! " + e.message, false); }
+      finally { btn.disabled = false; btn.textContent = originalText; }
     }
 
-    // --- EXPORT ---
     function exportExcel() {
         const grade = document.getElementById('exportGradeSelect').value;
         const subValue = document.getElementById('exportSubSelect').value;
         const period = document.getElementById('exportPeriodSelect').value;
-
-        if(!grade || !subValue || !period) {
-            alert("សូមជ្រើសរើសទិន្នន័យឱ្យគ្រប់");
-            return;
-        }
+        if(!grade || !subValue || !period) { alert("សូមជ្រើសរើសទិន្នន័យឱ្យគ្រប់"); return; }
 
         const exportBtn = document.getElementById("exportBtn");
         exportBtn.disabled = true;
         exportBtn.textContent = "កំពុងដំណើរការ...";
-
-        const params = new URLSearchParams({
-            action: 'exportExcel',
-            mode: currentMode,
-            grade: grade,
-            period: period
-        });
-        
-        if (currentMode === 'class') {
-            params.append('class', subValue);
-        } else {
-            params.append('room', subValue);
-        }
-
+        const params = new URLSearchParams({ action: 'exportExcel', mode: currentMode, grade, period });
+        if (currentMode === 'class') params.append('class', subValue); else params.append('room', subValue);
         window.open(`${SCRIPT_URL}?${params.toString()}`, '_blank');
-        
-        setTimeout(() => {
-            exportBtn.disabled = false;
-            exportBtn.textContent = "ទាញយក Excel";
-        }, 3000);
+        setTimeout(() => { exportBtn.disabled = false; exportBtn.textContent = "ទាញយក Excel"; }, 3000);
     }
 
-    // --- HELPERS ---
     function populateSelect(id, list, placeholder) {
       const el = document.getElementById(id);
       el.innerHTML = placeholder ? `<option value="">${placeholder}</option>` : '';
@@ -713,12 +521,9 @@
     function populatePeriodSelect(id, data) {
       const el = document.getElementById(id);
       el.innerHTML = `<option value="">ជ្រើសរើសខែ</option>`;
-      if (Array.isArray(data)) {
-        data.forEach(p => el.innerHTML += `<option value="${p.value}">${p.name}</option>`);
-      }
+      if (Array.isArray(data)) data.forEach(p => el.innerHTML += `<option value="${p.value}">${p.name}</option>`);
     }
 
-    // --- EVENTS ---
     document.getElementById('gradeSelect').addEventListener('change', () => triggerGradeChange('gradeSelect', 'subSelect'));
     document.getElementById('exportGradeSelect').addEventListener('change', () => triggerGradeChange('exportGradeSelect', 'exportSubSelect'));
     document.getElementById('subSelect').addEventListener('change', loadStudents);
@@ -728,7 +533,6 @@
 
     document.getElementById('studentTableBody').addEventListener('keydown', (e) => {
         if (!e.target.classList.contains('score-input')) return;
-        
         if(e.key === 'Enter' || e.key === 'Tab') {
             e.preventDefault();
             const inputs = [...document.querySelectorAll('.score-input')];
@@ -753,22 +557,17 @@
         e.preventDefault();
         const pastedData = (e.clipboardData || window.clipboardData).getData('text');
         if (!pastedData) return;
-
         const scores = pastedData.trim().split(/\r?\n/);
         const allInputs = [...document.querySelectorAll(".score-input")];
         const startIndex = allInputs.indexOf(e.target);
-
         scores.forEach((score, index) => {
             const targetIndex = startIndex + index;
             if (targetIndex < allInputs.length && score.trim() !== "") {
                 allInputs[targetIndex].value = score.trim();
             }
         });
-        
         const nextFocusIndex = startIndex + scores.length;
-        if (nextFocusIndex < allInputs.length) {
-            allInputs[nextFocusIndex].focus();
-        }
+        if (nextFocusIndex < allInputs.length) allInputs[nextFocusIndex].focus();
     });
 
     window.onload = loadDropdowns;
