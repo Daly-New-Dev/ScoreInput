@@ -23,7 +23,9 @@ function doGet(e) {
     const data = sheet.getDataRange().getValues();
     const headers = data[0];
     
-    const subjects = headers.slice(6); // Col G+
+    // Subjects start at Column H (Index 7)
+    const subjects = headers.slice(7); 
+    
     const classes = [...new Set(data.slice(1).map(r => r[3]).filter(String))].sort(); // Col D
     const grades = [...new Set(data.slice(1).map(r => r[4]).filter(String))].sort((a,b)=>a-b); // Col E
     
@@ -45,7 +47,7 @@ function doGet(e) {
     });
     uniqueRooms.sort((a,b) => a.room.localeCompare(b.room, undefined, {numeric: true}));
 
-    // Period List from 'Periods' Sheet
+    // Period List
     const periodSheet = ss.getSheetByName('Periods');
     let periods = [];
     if (periodSheet) {
@@ -66,7 +68,7 @@ function doGet(e) {
     })).setMimeType(ContentService.MimeType.JSON);
   }
 
-  // --- 2. Get Students ---
+  // --- 2. Get Students (UPDATED) ---
   if (action == 'getStudents') {
     const sheet = ss.getSheetByName(SHEET_NAME);
     const mode = e.parameter.mode;
@@ -77,23 +79,26 @@ function doGet(e) {
     let students = [];
     
     data.slice(1).forEach((row, index) => {
-      const rowGrade = String(row[4]); 
-      const rowClass = String(row[3]); 
-      const rowRoom  = String(row[5]); 
+      const rowGrade = String(row[4]); // Col E
+      const rowClass = String(row[3]); // Col D
+      const rowRoom  = String(row[5]); // Col F
       
       let match = false;
       if (mode == 'class') {
-        if (rowClass == value) match = true;
+        if (rowClass === value) match = true;
       } else if (mode == 'room') {
          if (rowGrade == grade && rowRoom == value) match = true;
       }
 
       if (match) {
         students.push({
-          id: row[0],         
-          name: row[1],       
-          gender: row[2],     
-          class: row[3],      
+          id: row[0],          // Col A
+          name: row[1],        // Col B
+          gender: row[2],      // Col C
+          class: row[3],       // Col D
+          grade: row[4],       // Col E - Added Grade
+          room: row[5],        // Col F
+          tableNumber: row[6], // Col G - Table Number
           rowIndex: index + 2 
         });
       }
@@ -105,37 +110,34 @@ function doGet(e) {
       .setMimeType(ContentService.MimeType.JSON);
   }
   
-  // --- 3. EXPORT EXCEL (The Logic You Requested) ---
+  // --- 3. EXPORT EXCEL ---
   if (action == 'exportExcel') {
-    const mode = e.parameter.mode;   // 'class' or 'room'
+    const mode = e.parameter.mode;   
     const grade = e.parameter.grade; 
     const value = (mode === 'class') ? e.parameter.class : e.parameter.room; 
     const period = e.parameter.period;
 
     if (!period) return HtmlService.createHtmlOutput("<h3>Error: Period not selected.</h3>");
 
-    // 1. Get Data from the PERIOD sheet (contains scores)
     const sourceSheet = ss.getSheetByName(period);
     if (!sourceSheet) return HtmlService.createHtmlOutput(`<h3>Error: Sheet for "${period}" not found.</h3>`);
 
     const data = sourceSheet.getDataRange().getValues();
     const header = data[0];
     
-    // 2. Filter Data based on Mode
     let filteredRows = [];
     
-    // Skip header (i=1)
+    // Using Loop for complex filtering
     for (let i = 1; i < data.length; i++) {
       const row = data[i];
-      const rowGrade = String(row[4]); // Col E
-      const rowClass = String(row[3]); // Col D
-      const rowRoom = String(row[5]);  // Col F
+      const rowGrade = String(row[4]); 
+      const rowClass = String(row[3]); 
+      const rowRoom = String(row[5]);  
       
       let match = false;
       if (mode === 'class') {
         if (rowClass === value) match = true;
       } else {
-        // Room Mode matches Grade AND Room
         if (rowGrade === grade && rowRoom === value) match = true;
       }
       
@@ -148,79 +150,84 @@ function doGet(e) {
       return HtmlService.createHtmlOutput("<h3>No data found for this selection.</h3>");
     }
 
-    // 3. Sort Data A-Z (Khmer Name is at Index 1 / Col B)
+    // Sort for Export
     filteredRows.sort((a, b) => String(a[1]).localeCompare(String(b[1]), 'km'));
 
-    // 4. Create Temporary Spreadsheet
     const fileName = `Export_${period}_${mode}_${value}`;
     const tempSS = SpreadsheetApp.create(fileName);
     const tempSheet = tempSS.getSheets()[0];
 
-    // Write Header + Data
     const outputData = [header, ...filteredRows];
     tempSheet.getRange(1, 1, outputData.length, outputData[0].length).setValues(outputData);
-    
-    // Basic Formatting
     tempSheet.getRange(1, 1, 1, outputData[0].length).setFontWeight("bold").setBackground("#DDDDDD");
     tempSheet.autoResizeColumns(1, outputData[0].length);
 
-    // 5. Generate Download URL
-    SpreadsheetApp.flush(); // Ensure data is written
+    SpreadsheetApp.flush(); 
     const fileId = tempSS.getId();
-    
-    // Make file accessible so link works for anyone
     DriveApp.getFileById(fileId).setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-    
-    // Helper to delete temp files later (Optional: You can manually delete from Drive)
-    // For now, we leave it to ensure download works reliably.
-
     const downloadUrl = `https://docs.google.com/spreadsheets/d/${fileId}/export?format=xlsx`;
 
-    // 6. Return HTML that auto-redirects to download
     return HtmlService.createHtmlOutput(`
       <html>
         <body style="font-family: sans-serif; text-align: center; padding-top: 50px;">
           <h2>Generating Excel...</h2>
           <p>Download should start automatically.</p>
-          <p>If not, <a href="${downloadUrl}" target="_top">click here</a>.</p>
-          <script>
-            window.location.href = "${downloadUrl}";
-          </script>
+          <script>window.location.href = "${downloadUrl}";</script>
         </body>
       </html>
     `);
   }
 }
 
-// --- POST HANDLER (Submit Scores) ---
+// --- POST HANDLER (UPDATED LOGIC) ---
 function doPost(e) {
   try {
     const data = JSON.parse(e.postData.contents);
-    const action = data.action;
-    const payload = data.payload;
-
-    if (action == 'submitScores') {
+    if (data.action == 'submitScores') {
       const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-      let periodSheet = ss.getSheetByName(payload.period);
+      let periodSheet = ss.getSheetByName(data.payload.period);
       
       if (!periodSheet) {
-          return ContentService.createTextOutput(JSON.stringify({status: 'error', message: 'Period Sheet not found'}));
+        return ContentService.createTextOutput(JSON.stringify({status: 'error', message: 'Period Sheet not found'}));
       }
 
+      // 1. Find Subject Column
       const headers = periodSheet.getRange(1, 1, 1, periodSheet.getLastColumn()).getValues()[0];
-      const colIndex = headers.indexOf(payload.subject);
+      const colIndex = headers.indexOf(data.payload.subject);
       
       if (colIndex === -1) {
-         return ContentService.createTextOutput(JSON.stringify({status: 'error', message: 'Subject not found in header'}));
+        return ContentService.createTextOutput(JSON.stringify({status: 'error', message: 'Subject not found'}));
       }
 
-      payload.scores.forEach(item => {
-        if(item.rowIndex <= periodSheet.getMaxRows()) {
-            periodSheet.getRange(item.rowIndex, colIndex + 1).setValue(item.score);
+      // 2. Build Lookup Map (Key: Grade_Room_TableNumber -> RowIndex)
+      // This ensures we find the correct student even if rows are sorted differently.
+      const sheetData = periodSheet.getDataRange().getValues();
+      const rowMap = new Map();
+      
+      for (let i = 1; i < sheetData.length; i++) { // Skip header
+        const row = sheetData[i];
+        // Col E (Idx 4) = Grade, Col F (Idx 5) = Room, Col G (Idx 6) = Table Number
+        const key = String(row[4]).trim() + "_" + String(row[5]).trim() + "_" + String(row[6]).trim();
+        rowMap.set(key, i + 1); // Store 1-based Row Index
+      }
+
+      // 3. Write Scores using Lookup
+      let savedCount = 0;
+      data.payload.scores.forEach(item => {
+        const key = String(item.grade).trim() + "_" + String(item.room).trim() + "_" + String(item.tableNumber).trim();
+        const targetRowIndex = rowMap.get(key);
+        
+        if (targetRowIndex) {
+          // Write score to the found row
+          periodSheet.getRange(targetRowIndex, colIndex + 1).setValue(item.score);
+          savedCount++;
         }
       });
 
-      return ContentService.createTextOutput(JSON.stringify({status: 'success', message: 'Saved Successfully'}));
+      return ContentService.createTextOutput(JSON.stringify({
+        status: 'success', 
+        message: `Saved ${savedCount} scores successfully`
+      }));
     }
   } catch (error) {
     return ContentService.createTextOutput(JSON.stringify({status: 'error', message: error.toString()}));

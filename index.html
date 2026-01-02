@@ -191,14 +191,12 @@
 
       th, td { font-size: 12px; padding: 4px 2px; }
       
-      /* Updated Column Widths for Mobile with New Columns */
       th:nth-child(1) { width: 25px; } /* No */
-      th:nth-child(2) { width: 30px; } /* Room (New) */
-      th:nth-child(3) { width: 30px; } /* Table (New) */
+      th:nth-child(2) { width: 30px; } /* Room */
+      th:nth-child(3) { width: 30px; } /* Table (G) */
       th:nth-child(5) { width: 30px; } /* Gender */
       th:nth-child(6) { width: 35px; } /* Class */
       th:nth-child(7) { width: 50px; } /* Score */
-      /* Name (4th) takes remaining space */
       
       .score-input { height: 28px; font-size: 13px; }
       .export-section { margin-top: 15px; padding-top: 10px; }
@@ -296,8 +294,8 @@
           <thead>
             <tr>
               <th style="width: 50px;">ល.រ</th>
-              <th style="width: 50px;">បន្ទប់</th> <!-- Col F (Room) -->
-              <th style="width: 50px;">លេខតុ</th> <!-- Col A (Table/ID) -->
+              <th style="width: 50px;">បន្ទប់</th>
+              <th style="width: 50px;">លេខតុ</th> <!-- UPDATED Col 3 -->
               <th>ឈ្មោះសិស្ស</th>
               <th style="width: 60px;">ភេទ</th>
               <th style="width: 80px;">ថ្នាក់</th>
@@ -313,7 +311,7 @@
   </div>
 
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyoyB4zT8Mefvcywj8N6f1Jv2X_WuTBhM4zup0A1__9w3SoS5550rsVHS-uJtbeomwf/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyKkJ8Iewl5PbKUPYULdTeYluxr3_F8_-iGQg9WY3BFHtZum7lXR-PBziTVI5EvJLrs/exec';
     
     let currentMode = 'class'; 
     let students = [];
@@ -448,13 +446,18 @@
         html += `
           <tr>
             <td>${i+1}</td>
-            <td>${s.room || '-'}</td> <!-- Room -->
-            <td>${s.id}</td> <!-- Table/ID -->
+            <td>${s.room || '-'}</td>
+            <td>${s.tableNumber || '-'}</td> <!-- UPDATED: Display Table Number (Col G) -->
             <td style="text-align:left; padding-left:10px; font-weight:bold;">${s.name}</td>
             <td>${s.gender}</td>
             <td style="font-size:12px; color:#666;">${s.class}</td>
             <td>
-              <input type="number" class="score-input" data-id="${s.id}" data-row="${s.rowIndex}" placeholder="0" onwheel="this.blur()">
+              <input type="number" class="score-input" 
+                     data-id="${s.id}" 
+                     data-grade="${s.grade}" 
+                     data-room="${s.room}" 
+                     data-table="${s.tableNumber}" 
+                     placeholder="0" onwheel="this.blur()">
             </td>
           </tr>
         `;
@@ -473,7 +476,13 @@
       const scores = [];
       document.querySelectorAll('.score-input').forEach(input => {
         if (input.value.trim() !== "") {
-          scores.push({ id: input.dataset.id, rowIndex: parseInt(input.dataset.row), score: input.value.trim() });
+          // Collect required data for lookup
+          scores.push({ 
+              score: input.value.trim(),
+              grade: input.dataset.grade,
+              room: input.dataset.room,
+              tableNumber: input.dataset.table
+          });
         }
       });
       if (scores.length === 0) { alert("សូមបញ្ចូលពិន្ទុយ៉ាងតិច ១នាក់"); return; }
