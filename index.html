@@ -295,7 +295,7 @@
             <tr>
               <th style="width: 50px;">ល.រ</th>
               <th style="width: 50px;">បន្ទប់</th>
-              <th style="width: 50px;">លេខតុ</th> <!-- UPDATED Col 3 -->
+              <th style="width: 50px;">លេខតុ</th> 
               <th>ឈ្មោះសិស្ស</th>
               <th style="width: 60px;">ភេទ</th>
               <th style="width: 80px;">ថ្នាក់</th>
@@ -311,7 +311,7 @@
   </div>
 
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyKkJ8Iewl5PbKUPYULdTeYluxr3_F8_-iGQg9WY3BFHtZum7lXR-PBziTVI5EvJLrs/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8atyWi-zLrcKCjekQBbVtOnv9xUo7FI-RdUuGcKhFUvJfoSarBZQt5ZZUwxcYc2me/exec';
     
     let currentMode = 'class'; 
     let students = [];
@@ -385,11 +385,12 @@
       if (!grade) return [];
 
       if (type === 'class') {
-          const khmerNum = grade.replace('7','៧').replace('8','៨').replace('9','៩').replace('10','១០').replace('11','១១').replace('12','១២');
-          return sourceList.filter(item => 
-              String(item).includes(grade) || String(item).includes(khmerNum)
-          );
+          // STRICT FILTER: Match grade EXACTLY
+          return sourceList
+            .filter(item => String(item.grade) === String(grade))
+            .map(item => item.className);
       } else {
+          // Strict filter for rooms too
           return sourceList
             .filter(item => String(item.grade) === String(grade))
             .map(item => item.room);
@@ -404,13 +405,11 @@
           target.innerHTML = '<option value="">សូមជ្រើសរើសកម្រិតថ្នាក់</option>';
           return;
       }
+      
       const items = filterItems(grade, currentMode);
+      
       if (items.length === 0) {
-        if(currentMode === 'class' && listData.classes.length > 0) {
-           listData.classes.forEach(item => target.innerHTML += `<option value="${item}">${item}</option>`);
-        } else {
-           target.innerHTML = '<option value="">គ្មានទិន្នន័យ (No Data)</option>';
-        }
+         target.innerHTML = '<option value="">គ្មានទិន្នន័យ (No Data)</option>';
       } else {
         items.forEach(item => target.innerHTML += `<option value="${item}">${item}</option>`);
       }
@@ -447,7 +446,7 @@
           <tr>
             <td>${i+1}</td>
             <td>${s.room || '-'}</td>
-            <td>${s.tableNumber || '-'}</td> <!-- UPDATED: Display Table Number (Col G) -->
+            <td>${s.tableNumber || '-'}</td> 
             <td style="text-align:left; padding-left:10px; font-weight:bold;">${s.name}</td>
             <td>${s.gender}</td>
             <td style="font-size:12px; color:#666;">${s.class}</td>
@@ -476,7 +475,6 @@
       const scores = [];
       document.querySelectorAll('.score-input').forEach(input => {
         if (input.value.trim() !== "") {
-          // Collect required data for lookup
           scores.push({ 
               score: input.value.trim(),
               grade: input.dataset.grade,

@@ -26,8 +26,28 @@ function doGet(e) {
     // Subjects start at Column H (Index 7)
     const subjects = headers.slice(7); 
     
-    const classes = [...new Set(data.slice(1).map(r => r[3]).filter(String))].sort(); // Col D
-    const grades = [...new Set(data.slice(1).map(r => r[4]).filter(String))].sort((a,b)=>a-b); // Col E
+    // UPDATED: Get Classes with Grade Mapping (To separate 11 Sc / 11 So)
+    const rawClasses = data.slice(1).map(r => ({grade: r[4], className: r[3]})); // Col E=Grade, D=Class
+    const uniqueClasses = [];
+    const seenClasses = new Set();
+    
+    rawClasses.forEach(item => {
+      const g = String(item.grade).trim();
+      const c = String(item.className).trim();
+      if(g && c) {
+        const key = g + "_" + c;
+        if(!seenClasses.has(key)) {
+          seenClasses.add(key);
+          uniqueClasses.push({grade: g, className: c});
+        }
+      }
+    });
+    // Sort classes naturally
+    uniqueClasses.sort((a,b) => a.className.localeCompare(b.className, undefined, {numeric: true}));
+
+    // Grades
+    const grades = [...new Set(data.slice(1).map(r => r[4]).filter(String))]
+                   .sort((a,b) => String(a).localeCompare(String(b), undefined, {numeric: true})); // Col E
     
     // Get Rooms with Grade Mapping
     const rawRooms = data.slice(1).map(r => ({grade: r[4], room: r[5]})); 
@@ -61,14 +81,14 @@ function doGet(e) {
 
     return ContentService.createTextOutput(JSON.stringify({
       subjects: subjects,
-      classes: classes,
+      classes: uniqueClasses, // Now returns objects: {grade: "11 វិទ្យា", className: "11A"}
       grades: grades,
       rooms: uniqueRooms,
       periods: periods
     })).setMimeType(ContentService.MimeType.JSON);
   }
 
-  // --- 2. Get Students (UPDATED) ---
+  // --- 2. Get Students ---
   if (action == 'getStudents') {
     const sheet = ss.getSheetByName(SHEET_NAME);
     const mode = e.parameter.mode;
@@ -85,8 +105,10 @@ function doGet(e) {
       
       let match = false;
       if (mode == 'class') {
-        if (rowClass === value) match = true;
+        // Strict Match: Grade AND Class Name must match
+        if (rowGrade == grade && rowClass === value) match = true;
       } else if (mode == 'room') {
+         // Strict Match: Grade AND Room Number must match
          if (rowGrade == grade && rowRoom == value) match = true;
       }
 
@@ -96,9 +118,9 @@ function doGet(e) {
           name: row[1],        // Col B
           gender: row[2],      // Col C
           class: row[3],       // Col D
-          grade: row[4],       // Col E - Added Grade
+          grade: row[4],       // Col E
           room: row[5],        // Col F
-          tableNumber: row[6], // Col G - Table Number
+          tableNumber: row[6], // Col G
           rowIndex: index + 2 
         });
       }
@@ -127,7 +149,6 @@ function doGet(e) {
     
     let filteredRows = [];
     
-    // Using Loop for complex filtering
     for (let i = 1; i < data.length; i++) {
       const row = data[i];
       const rowGrade = String(row[4]); 
@@ -136,7 +157,8 @@ function doGet(e) {
       
       let match = false;
       if (mode === 'class') {
-        if (rowClass === value) match = true;
+        // UPDATED: Check both Grade AND Class for export
+        if (rowGrade === grade && rowClass === value) match = true;
       } else {
         if (rowGrade === grade && rowRoom === value) match = true;
       }
@@ -150,7 +172,6 @@ function doGet(e) {
       return HtmlService.createHtmlOutput("<h3>No data found for this selection.</h3>");
     }
 
-    // Sort for Export
     filteredRows.sort((a, b) => String(a[1]).localeCompare(String(b[1]), 'km'));
 
     const fileName = `Export_${period}_${mode}_${value}`;
@@ -179,46 +200,36 @@ function doGet(e) {
   }
 }
 
-// --- POST HANDLER (UPDATED LOGIC) ---
+// --- POST HANDLER ---
 function doPost(e) {
   try {
     const data = JSON.parse(e.postData.contents);
     if (data.action == 'submitScores') {
       const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
       let periodSheet = ss.getSheetByName(data.payload.period);
-      
-      if (!periodSheet) {
-        return ContentService.createTextOutput(JSON.stringify({status: 'error', message: 'Period Sheet not found'}));
-      }
+      if (!periodSheet) return ContentService.createTextOutput(JSON.stringify({status: 'error', message: 'Period Sheet not found'}));
 
-      // 1. Find Subject Column
       const headers = periodSheet.getRange(1, 1, 1, periodSheet.getLastColumn()).getValues()[0];
       const colIndex = headers.indexOf(data.payload.subject);
       
-      if (colIndex === -1) {
-        return ContentService.createTextOutput(JSON.stringify({status: 'error', message: 'Subject not found'}));
-      }
+      if (colIndex === -1) return ContentService.createTextOutput(JSON.stringify({status: 'error', message: 'Subject not found'}));
 
-      // 2. Build Lookup Map (Key: Grade_Room_TableNumber -> RowIndex)
-      // This ensures we find the correct student even if rows are sorted differently.
       const sheetData = periodSheet.getDataRange().getValues();
       const rowMap = new Map();
       
-      for (let i = 1; i < sheetData.length; i++) { // Skip header
+      for (let i = 1; i < sheetData.length; i++) { 
         const row = sheetData[i];
-        // Col E (Idx 4) = Grade, Col F (Idx 5) = Room, Col G (Idx 6) = Table Number
+        // Key: Grade_Room_TableNumber
         const key = String(row[4]).trim() + "_" + String(row[5]).trim() + "_" + String(row[6]).trim();
-        rowMap.set(key, i + 1); // Store 1-based Row Index
+        rowMap.set(key, i + 1); 
       }
 
-      // 3. Write Scores using Lookup
       let savedCount = 0;
       data.payload.scores.forEach(item => {
         const key = String(item.grade).trim() + "_" + String(item.room).trim() + "_" + String(item.tableNumber).trim();
         const targetRowIndex = rowMap.get(key);
         
         if (targetRowIndex) {
-          // Write score to the found row
           periodSheet.getRange(targetRowIndex, colIndex + 1).setValue(item.score);
           savedCount++;
         }
